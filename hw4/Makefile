@@ -8,13 +8,13 @@ randtrack: list.h hash.h defs.h randtrack.cc
 	$(CC) $(CFLAGS) randtrack.cc -o randtrack
 
 tm: list.h hash.h defs.h randtrack_tm.cc
-	$(CC) $(CFLAGS) randtrack_tm.cc -o randtrack
+	$(CC) $(CFLAGS) randtrack_tm.cc -o randtrack -pthread
 
 randtrack_list_lock: list.h hash.h defs.h randtrack_list_lock.cc
-	$(CC) $(CFLAGS) randtrack.cc -o randtrack
+	$(CC) $(CFLAGS) randtrack.cc -o randtrack -pthread
 
 global: list.h hash.h defs.h randtrack_global_lock.cc
-	$(CC) $(CFLAGS) randtrack_global_lock.cc -o randtrack
+	$(CC) $(CFLAGS) randtrack_global_lock.cc -o randtrack -pthread
 
 
 clean:

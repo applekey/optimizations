@@ -1,6 +1,8 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <pthread.h>
+
 
 #include "defs.h"
 #include "hash.h"
@@ -47,6 +49,14 @@ class sample {
 // key value is "unsigned".  
 hash<sample,unsigned> h;
 
+// forked function
+void* parrallel(void * ptr)
+{
+
+
+
+}
+
 int  
 main (int argc, char* argv[]){
   int i,j,k;
@@ -73,6 +83,15 @@ main (int argc, char* argv[]){
   }
   sscanf(argv[1], " %d", &num_threads); // not used in this single-threaded version
   sscanf(argv[2], " %d", &samples_to_skip);
+
+  pthread_t * threads = new pthread_t [num_threads];
+  int * threadIds = new int[num_threads];
+
+    //initilize and create threads
+  for(int i =0; i<num_threads; i++)
+  {
+    threadIds[i] = pthread_create( &threads[i], NULL, parrallel, NULL);
+  }
 
   // initialize a 16K-entry (2**14) hash of empty lists
   h.setup(14);
@@ -107,4 +126,6 @@ main (int argc, char* argv[]){
 
   // print a list of the frequency of all samples
   h.print();
+  delete [] threadIds;
+  delete [] threads;
 }
