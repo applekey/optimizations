@@ -125,6 +125,13 @@ main (int argc, char* argv[]){
   }
 
   // print a list of the frequency of all samples
+
+  // wait for all threads to join
+   for(int i =0; i<num_threads; i++)
+  {
+     pthread_join( threadIds[i], NULL);
+  }
+
   h.print();
   delete [] threadIds;
   delete [] threads;
