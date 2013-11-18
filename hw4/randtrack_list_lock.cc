@@ -5,7 +5,7 @@
 
 
 #include "defs.h"
-#include "hash.h"
+#include "hash_list_lock.h"
 
 #define SAMPLES_TO_COLLECT   10000000
 #define RAND_NUM_UPPER_BOUND   100000
@@ -26,7 +26,7 @@ team_t team = {
     "",                           /* Second member student number */
     ""                            /* Second member email address */
 };
-pthread_mutex_t global_lock = PTHREAD_MUTEX_INITIALIZER; 
+
 unsigned num_threads;
 unsigned samples_to_skip;
 
@@ -71,7 +71,7 @@ void *parallel_streams (void *counter){
 
       // force the sample to be within the range of 0..RAND_NUM_UPPER_BOUND-1
       key = rnum % RAND_NUM_UPPER_BOUND;
-      pthread_mutex_lock (&global_lock);
+      h.lock_list(key);
       // if this sample has not been counted before
       if (!(s = h.lookup(key))){
   
@@ -82,7 +82,7 @@ void *parallel_streams (void *counter){
 
       // increment the count for the sample
       s->count++;
-      pthread_mutex_unlock (&global_lock);
+      h.unlock_list(key);
     }
   } 
 }
@@ -118,7 +118,6 @@ main (int argc, char* argv[]){
 
   // initialize a 16K-entry (2**14) hash of empty lists
   h.setup(14);
-
   threads = (pthread_t *) malloc (num_threads * sizeof(pthread_t));
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
