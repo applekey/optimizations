@@ -50,19 +50,52 @@ class sample {
 hash<sample,unsigned> h;
 
 // forked function
-void* parrallel(void * ptr)
-{
+void *parallel_streams (void *counter){
+  int upperbound, lowerbound;
+  int i, j, k, rnum;
+  unsigned key;
+  sample *s;
+  upperbound = (*(int*)counter+1) * (NUM_SEED_STREAMS/num_threads);
+  lowerbound = (*(int*)counter) * (NUM_SEED_STREAMS/num_threads);
+  //printf("in thread thread number %d, upperbound %d, lowerbound %d\n", *(int*)counter, upperbound, lowerbound);
+  
+  for (i = lowerbound; i < upperbound; i++) {
+    rnum = i;
+    // collect a number of samples
+    for (j=0; j<SAMPLES_TO_COLLECT; j++){
 
+      // skip a number of samples
+      for (k=0; k<samples_to_skip; k++){
+       rnum = rand_r((unsigned int*)&rnum);
+      }
 
+      // force the sample to be within the range of 0..RAND_NUM_UPPER_BOUND-1
+      key = rnum % RAND_NUM_UPPER_BOUND;
 
+      __transaction_atomic { 
+        // if this sample has not been counted before
+          if (!(s = h.lookup(key))){
+    
+          // insert a new element for it into the hash table
+          s = new sample(key);
+          h.insert(s);
+          }
+
+        // increment the count for the sample
+        s->count++;
+        }
+    }
+  } 
 }
 
 int  
 main (int argc, char* argv[]){
   int i,j,k;
-  int rnum;
+  int *rnum;
   unsigned key;
   sample *s;
+  pthread_t *threads;
+  pthread_attr_t attr;
 
   // Print out team information
   printf( "Team Name: %s\n", team.team );
@@ -84,55 +117,25 @@ main (int argc, char* argv[]){
   sscanf(argv[1], " %d", &num_threads); // not used in this single-threaded version
   sscanf(argv[2], " %d", &samples_to_skip);
 
-  pthread_t * threads = new pthread_t [num_threads];
-  int * threadIds = new int[num_threads];
-
-    //initilize and create threads
-  for(int i =0; i<num_threads; i++)
-  {
-    threadIds[i] = pthread_create( &threads[i], NULL, parrallel, NULL);
-  }
-
   // initialize a 16K-entry (2**14) hash of empty lists
   h.setup(14);
 
+  threads = (pthread_t *) malloc (num_threads * sizeof(pthread_t));
+  pthread_attr_init(&attr);
+  pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
+  rnum = (int *) malloc (num_threads * sizeof(int));
   // process streams starting with different initial numbers
-  for (i=0; i<NUM_SEED_STREAMS; i++){
-    rnum = i;
-
-    // collect a number of samples
-    for (j=0; j<SAMPLES_TO_COLLECT; j++){
-
-      // skip a number of samples
-      for (k=0; k<samples_to_skip; k++){
-	rnum = rand_r((unsigned int*)&rnum);
-      }
-
-      // force the sample to be within the range of 0..RAND_NUM_UPPER_BOUND-1
-      key = rnum % RAND_NUM_UPPER_BOUND;
-
-      // if this sample has not been counted before
-      if (!(s = h.lookup(key))){
-	
-	// insert a new element for it into the hash table
-	s = new sample(key);
-	h.insert(s);
-      }
-
-      // increment the count for the sample
-      s->count++;
-    }
+  
+  for (i=0; i<num_threads; i++){
+    rnum[i] = i;
+    pthread_create (&threads[i], NULL, parallel_streams, (void *)&(rnum[i]));
   }
-
+  
+  for (i = 0; i < num_threads; i++) {
+    pthread_join(threads[i], NULL);
+  }
+  pthread_attr_destroy(&attr);
   // print a list of the frequency of all samples
-
-  // wait for all threads to join
-   for(int i =0; i<num_threads; i++)
-  {
-     pthread_join( threadIds[i], NULL);
-  }
-
   h.print();
-  delete [] threadIds;
-  delete [] threads;
+  pthread_exit(NULL);
 }
