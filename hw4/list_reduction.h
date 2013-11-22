@@ -71,6 +71,8 @@ list<Ele,Keytype>::merge(Ele *localHead){
        localPointer->next = my_head;
        my_head = localPointer;
        my_num_ele++;
+
+       globalPointer = my_head;  // update the global pointer
       pthread_mutex_unlock(&(my_head->lock));
 
     }
