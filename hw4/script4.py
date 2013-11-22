@@ -21,7 +21,7 @@ make = 'make'
 randtrack = 'randtrack 1 50 >base.out'
 randtrackGlobal = 'randtrack_global_lock 4 50 >global.out'
 randtrackTm = 'randtrack_tm 4 50 >randtrack_tm.out'
-randtrackll = 'randtrack_list_lock 4 50 >randtrack_tm.out'
+randtrackll = 'randtrack_list_lock 4 50 >randtrack_list_lock.out'
 randtrackel = 'randtrack_element_lock 4 50 >randtrack_element_lock.out'
 randtrackre = 'randtrack_reduction 4 50 >randtrack_reduction.out'
 
@@ -86,9 +86,6 @@ def runDiff():
 	output = command(a5)
 	if not output:
 		print 'error 5' 
-	output = command(a6)
-	if not output:
-		print 'error 6' 
 
 runChecks();
 runDiff();
