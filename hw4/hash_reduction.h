@@ -59,7 +59,10 @@ hash<Ele,Keytype>::merge_hash(hash<Ele,Keytype> * globalHash){
     list<Ele,Keytype> *localList = &entries[i];
     list<Ele,Keytype> *globalList = globalHash->get_list(i);
 
+
     Ele * localListHead = localList -> head();
+    //printf("head : %p\n",globalList);
+
     globalList->merge(localListHead);    
   }
 }  

@@ -43,8 +43,10 @@ list<Ele,Keytype>::setup(){
 template<class Ele, class Keytype> 
 void 
 list<Ele,Keytype>::merge(Ele *localHead){
+  if(localHead ==NULL)
+    return;
 
-  Ele *localPointer;
+  Ele *localPointer = localHead;
   Ele *globalPointer = my_head;
   while(localPointer!= NULL)
   {
@@ -66,15 +68,20 @@ list<Ele,Keytype>::merge(Ele *localHead){
     }
     if(found == 0)
     {
+      printf("found\n");
       // lock the head and insert the entry, as it does not exist
-      pthread_mutex_lock(&(my_head->lock));
+      //pthread_mutex_lock(&(my_head->lock));
        localPointer->next = my_head;
        my_head = localPointer;
        my_num_ele++;
 
        globalPointer = my_head;  // update the global pointer
-      pthread_mutex_unlock(&(my_head->lock));
+      //pthread_mutex_unlock(&(my_head->lock));
 
+    }
+    else
+    {
+      printf("found\n");
     }
     localPointer = localPointer->next;
   }
