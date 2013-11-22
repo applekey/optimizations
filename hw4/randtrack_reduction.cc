@@ -56,10 +56,12 @@ class sample {
 // it is a C++ template, which means we define the types for
 // the element and key value here: element is "class sample" and
 // key value is "unsigned".  
-hash<sample,unsigned> h;
+hash<sample,unsigned> global_hash;
 
 
 void *parallel_streams (void *counter){
+  hash<sample,unsigned> local_hash;
+
   int upperbound, lowerbound;
   int i, j, k, rnum;
   unsigned key;
@@ -80,23 +82,19 @@ void *parallel_streams (void *counter){
 
       // force the sample to be within the range of 0..RAND_NUM_UPPER_BOUND-1
       key = rnum % RAND_NUM_UPPER_BOUND;
-      h.lock_list(key);
       // if this sample has not been counted before
-      if (!(s = h.lookup(key))){
+      if (!(s = local_hash.lookup(key))){
   
   // insert a new element for it into the hash table
         s = new sample(key);
-        h.insert(s);
+        local_hash.insert(s);
       }
-      h.unlock_list(key);
-
       // increment the count for the sample
-      pthread_mutex_lock(&(s->lock));
       s->count++;
-      pthread_mutex_unlock(&(s->lock));
-      
     }
-  } 
+  }
+  // merge the local hash with the global hash
+  local_hash.merge_hash(&global_hash);
 }
 
 int  
@@ -129,7 +127,7 @@ main (int argc, char* argv[]){
   sscanf(argv[2], " %d", &samples_to_skip);
 
   // initialize a 16K-entry (2**14) hash of empty lists
-  h.setup(14);
+  global_hash.setup(14);
   threads = (pthread_t *) malloc (num_threads * sizeof(pthread_t));
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
@@ -146,6 +144,6 @@ main (int argc, char* argv[]){
   }
   pthread_attr_destroy(&attr);
   // print a list of the frequency of all samples
-  h.print();
+  global_hash.print();
   pthread_exit(NULL);
 }

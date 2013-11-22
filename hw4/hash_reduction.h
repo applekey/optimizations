@@ -17,8 +17,7 @@ template<class Ele, class Keytype> class hash {
   unsigned my_size_mask;
   pthread_mutex_t *list_locks;
   list<Ele,Keytype> *entries;
-  list<Ele,Keytype> *get_list(unsigned the_idx);
-
+  
  public:
   void setup(unsigned the_size_log=5);
   void insert(Ele *e);
@@ -26,8 +25,12 @@ template<class Ele, class Keytype> class hash {
   void print(FILE *f=stdout);
   void lock_list (Keytype the_key);
   void unlock_list (Keytype the_key);
+  void merge_hash(hash<Ele,Keytype> * globalHash);
   void reset();
   void cleanup();
+
+  // added
+  list<Ele,Keytype> *get_list(unsigned the_idx);
 };
 
 template<class Ele, class Keytype> 
@@ -43,6 +46,24 @@ hash<Ele,Keytype>::setup(unsigned the_size_log){
   }
   entries = new list<Ele,Keytype>[my_size];
 }
+
+// 
+template<class Ele, class Keytype> 
+void
+hash<Ele,Keytype>::merge_hash(hash<Ele,Keytype> * globalHash){
+  // for each list, merge the lists
+  // i am making the assumpumption here that the global and local hash
+  // size are the same
+   for (int i=0;i<my_size;i++){
+    // copy each list
+    list<Ele,Keytype> *localList = &entries[i];
+    list<Ele,Keytype> *globalList = globalHash->get_list(i);
+
+    Ele * localListHead = localList -> head();
+    globalList->merge(localListHead);    
+  }
+}  
+
 
 template<class Ele, class Keytype> 
 list<Ele,Keytype> *
