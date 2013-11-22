@@ -52,7 +52,7 @@ list<Ele,Keytype>::merge(Ele *localHead){
   {
     unsigned keyToFind = localPointer ->key();
     int found = 0;
-    while(my_head!= NULL)
+    while(globalPointer!= NULL)
     {
       if(globalPointer->key() == keyToFind)
       {
@@ -71,18 +71,18 @@ list<Ele,Keytype>::merge(Ele *localHead){
       printf("found\n");
       // lock the head and insert the entry, as it does not exist
       //pthread_mutex_lock(&(my_head->lock));
-       localPointer->next = my_head;
-       my_head = localPointer;
-       my_num_ele++;
+      // create a new element
 
-       globalPointer = my_head;  // update the global pointer
+      Ele * e = new Ele(keyToFind);
+      e->next = my_head;
+      my_head = e;
+      my_num_ele++;
+
+      globalPointer = my_head;  // update the global pointer
       //pthread_mutex_unlock(&(my_head->lock));
 
     }
-    else
-    {
-      printf("found\n");
-    }
+  
     localPointer = localPointer->next;
   }
 }
