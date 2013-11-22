@@ -27,6 +27,8 @@ template<class Ele, class Keytype> class list {
   Ele *pop();
   void print(FILE *f=stdout);
 
+  void merge(Ele *local);
+
   void cleanup();
 };
 
@@ -36,6 +38,46 @@ list<Ele,Keytype>::setup(){
   my_head = NULL;
   my_num_ele = 0;
 }
+
+
+template<class Ele, class Keytype> 
+void 
+list<Ele,Keytype>::merge(Ele *localHead){
+
+  Ele *localPointer;
+  Ele *globalPointer = my_head;
+  while(localPointer!= NULL)
+  {
+    unsigned keyToFind = localPointer ->key();
+    int found = 0;
+    while(my_head!= NULL)
+    {
+      if(globalPointer->key() == keyToFind)
+      {
+        // lock it
+         pthread_mutex_lock(&(globalPointer->lock));
+        //increase count
+         globalPointer -> count ++;
+         pthread_mutex_unlock(&(globalPointer->lock));
+         found = 1;
+         break;
+      }
+      globalPointer = globalPointer ->next;
+    }
+    if(found == 0)
+    {
+      // lock the head and insert the entry, as it does not exist
+      pthread_mutex_lock(&(my_head->lock));
+       localPointer->next = my_head;
+       my_head = localPointer;
+       my_num_ele++;
+      pthread_mutex_unlock(&(my_head->lock));
+
+    }
+    localPointer = localPointer->next;
+  }
+}
+
 
 template<class Ele, class Keytype> 
 void 
