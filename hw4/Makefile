@@ -19,6 +19,9 @@ el: list.h hash.h defs.h randtrack_el.cc
 global: list.h hash.h defs.h randtrack_global_lock.cc
 	$(CC) $(CFLAGS) randtrack_global_lock.cc -o randtrack -pthread
 
+redu: list.h hash.h defs.h randtrack_reduction.cc
+	$(CC) $(CFLAGS) randtrack_reduction.cc -o randtrack -pthread
+
 
 clean:
 	rm -f *.o randtrack randtrack_global_lock randtrack_tm randtrack_list_lock
