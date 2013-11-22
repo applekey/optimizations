@@ -85,7 +85,7 @@ void *parallel_streams (void *counter){
       // if this sample has not been counted before
       if (!(s = h.lookup(key))){
          
-  // insert a new element for it into the hash table
+      // insert a new element for it into the hash table
         s = new sample(key);
         h.lock_list(key);
         h.insert(s);
