@@ -18,12 +18,12 @@ make = 'make'
 
 ####################################HOMEWORK SCRIPT BEGINS#################################################
 
-randtrack = 'randtrack 1 33 >base.out'
-randtrackGlobal = 'randtrack_global_lock 4 33 >global.out'
-randtrackTm = 'randtrack_tm 2 33 >randtrack_tm.out'
-randtrackll = 'randtrack_list_lock 2 33 >randtrack_list_lock.out'
-randtrackel = 'randtrack_element_lock 4 33 >randtrack_element_lock.out'
-randtrackre = 'randtrack_reduction 1 33 >randtrack_reduction.out'
+randtrack = 'randtrack 1 100 >base.out'
+randtrackGlobal = 'randtrack_global_lock 4 100 >global.out'
+randtrackTm = 'randtrack_tm 2 100 >randtrack_tm.out'
+randtrackll = 'randtrack_list_lock 2 100 >randtrack_list_lock.out'
+randtrackel = 'randtrack_element_lock 4 100 >randtrack_element_lock.out'
+randtrackre = 'randtrack_reduction 1 100 >randtrack_reduction.out'
 
 ################################ compare ################################
 c1 = 'sort -n base.out > base.outs'
