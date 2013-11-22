@@ -1,0 +1,94 @@
+Q1. Avoid unwanted races, and lock contention.
+
+
+Q2. Transaction memory is similar to global lock. Not much difference in difficulty.
+
+
+Q3. Yes, we can implement list lock without modifying the hash class or its internal implementation, but we need to know the hashing function and size (which we do).
+
+
+Q4, Yes, but we have to be careful to avoid inserting the same key twice. Two threads can both see the key does not exist. Additional checking needs to be added to insert method to make sure that we don't insert same key more than once.
+
+
+Q5. Similar to the previous question, we can implement list lock by adding a new function lookup_and_insert. First lock the list, then lookup the key, if exist, increment counter, if not, create new key, release lock. Unlike the previous question, we don't need to worry about inserting the same key twice because lookup and insert are together.
+
+
+Q6. Yes, using lock_list and unlock_list simplifies implementation. We call lock_list(key) before lookup and insert, then unlock_list(key) after.
+
+
+Q7. TM is slightly simpler than list lock.
+
+
+Q8. The pros of reduction version is possible speed up. There are lots of ways we can combine the separate hash tables into in single table. But the con is added complexity and significant increase in memory useage.
+
+
+Q9. 		Single thread time	Parallel with one thread	Overhead
+Global lock		17.7			19.5			1.10
+List Lock		17.7			19.9			1.12
+Element lock		17.7			20.0			1.13
+Reduction		17.7			17.7			1.00
+
+
+Q10. samples_to_skip = 50
+Global lock: 
+Threads:	Time	Speedup
+1		19.5	1.0X
+2		14.4	1.4X
+4		21.0	0.93X
+From 1 thread to 4 thread, there is 1.01X slow down. The slow down is reult of too many threads trying to compete for the lock, and as a result, the program proformance suffers.
+
+
+List lock: 	
+Threads:	Time	Speedup
+1		19.9	1.0X
+2		10.8	1.8X
+4		7.0	2.8X
+From 2 to 4 threads, the speed up isn't as significant, the speed of the memory is the bottleneck.
+
+
+Element Lock:
+Threads: 	Time	Speedup
+1		20.0	1.0X
+2		10.3	1.9X
+4		7.65	2.6X
+Similar list lock, the speed up isn't as significant from 2 to 4 threads, the speed of the memory is bottleneck.
+
+
+Reduction:
+Threads: 	Time	Speedup
+1		17.7	1.0X
+2		8.95	2.0X
+4		4.5	3.9X
+Reduction is very fast compare to locks. The memory bottleneck is less of an issue.
+
+
+Q11. samples to skip = 100
+Global lock: 
+Threads:	Time	Speedup
+1		37.0	1.0X
+2		22.3	1.7X
+4		18.4	2.0X
+
+List lock: 	
+Threads:	Time	Speedup
+1		37.2	1.0X
+2		19.4	1.9X
+4		11.1	3.3X
+
+Element Lock:
+Threads: 	Time	Speedup
+1		37.4	1.0X
+2		19.0	2.0X
+4		11.8	3.2X
+
+Reduction:
+Threads: 	Time	Speedup
+1		34.7	1.0X
+2		17.7	1.9X
+4		12.0	2.6X
+The tables clearly show that speedup is much more significant in almost all cases. This is due to increasing the execution time compare to memory access time. When samples_to_skip is high, there is more delay between each memory acess which decreases the chances of lock contention.
+In the case of Reduction, the speed up was not as signifitcant, because the delay between each memory acess is so long, reduction plays less of an role in optimizing.
+
+
+Q12. Based on the results, we think that reduction offers the best performance, and OptsRus should consider reduction approach.
+
