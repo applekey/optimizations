@@ -131,6 +131,11 @@ main (int argc, char* argv[]){
 
   // initialize a 16K-entry (2**14) hash of empty lists
   global_hash.setup(14);
+  for (i = 0; i < RAND_NUM_UPPER_BOUND; ++i) {
+  // insert a new element for it into the hash table
+    s = new sample(i);
+    global_hash.insert(s);
+  }
   threads = (pthread_t *) malloc (num_threads * sizeof(pthread_t));
   pthread_attr_init(&attr);
   pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_JOINABLE);
