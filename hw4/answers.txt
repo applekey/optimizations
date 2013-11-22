@@ -1,4 +1,14 @@
-Q1. Avoid unwanted races, and lock contention.
+ECE 454 Assignment 4
+
+Vincent Chen
+
+
+Q1. If the compiled code included other versions of the code not currently run
+by the current run version, say for example, a class lock, it would slow down the 
+program.  GCC optimization most likely cannot determine if that lock will be use
+in the program execution.  As well, the added code will add to the complexity of O3 
+optimization, as it will optimize for speed as well as code size.  Reducing the code 
+size to just the bare minimum will help gcc make the most optimum solution.
 
 
 Q2. Transaction memory is similar to global lock. Not much difference in difficulty.
@@ -16,78 +26,93 @@ Q5. Similar to the previous question, we can implement list lock by adding a new
 Q6. Yes, using lock_list and unlock_list simplifies implementation. We call lock_list(key) before lookup and insert, then unlock_list(key) after.
 
 
-Q7. TM is slightly simpler than list lock.
+Q7. TM is slightly simpler than list lock, as it will internally determine most 
+optimum locking/atomic instructions for that section.
 
 
-Q8. The pros of reduction version is possible speed up. There are lots of ways we can combine the separate hash tables into in single table. But the con is added complexity and significant increase in memory useage.
+Q8. The pros of reduction version is possible speed up. There are lots of ways we can combine the separate hash tables into in single table. But the con is added complexity and significant increase in memory usage.  This method is also very
+similar to the operating system concept of usability versus batch processing performance.  While in the original parallel versions, we are operating on the
+global hash table, thus implying that at any time, the status of a specific hash
+list can be queried.  In this batch processing mode, all different threads run
+independent of each other.  By removing the dependencies of each thread for each other
+we allow each thread to run independently, each thread running on separate processors
+can fully utilize the spatial locality of their l1 caches and not suffer from cross core
+communications.  Since we are merging at the end, and the fixed size of each local hash is know
+relative to the global hash, smart locking procedures can be enforced to minimize locking.  For example
+in the implementation of the reduction, we create each hash key upfront.  This way, when local hash 
+sets merge with the global, because there is a 1 to 1 correspondence from global to local, we can use
+element level locks instead of having to resort to list level locks.
 
 
 Q9. 		Single thread time	Parallel with one thread	Overhead
-Global lock		17.7			19.5			1.10
-List Lock		17.7			19.9			1.12
-Element lock		17.7			20.0			1.13
-Reduction		17.7			17.7			1.00
+Global lock		17.7			19.5			            1.10
+List Lock		17.7			19.9			            1.12
+Element lock	17.7			20.0			            1.13
+Reduction		17.7			17.7			            1.00
 
 
 Q10. samples_to_skip = 50
 Global lock: 
 Threads:	Time	Speedup
-1		19.5	1.0X
-2		14.4	1.4X
-4		21.0	0.93X
-From 1 thread to 4 thread, there is 1.01X slow down. The slow down is reult of too many threads trying to compete for the lock, and as a result, the program proformance suffers.
+1			19.5	1.0X
+2			14.4	1.4X
+4			21.0	0.93X
+
+From 1 thread to 4 thread, there is 1.01X slow down. The slow down is reult of too many threads trying to compete for the lock, and as a result, the program performance suffers.
 
 
 List lock: 	
 Threads:	Time	Speedup
-1		19.9	1.0X
-2		10.8	1.8X
-4		7.0	2.8X
+1			19.9	1.0X
+2			10.8	1.8X
+4			7.0	2.8X
 From 2 to 4 threads, the speed up isn't as significant, the speed of the memory is the bottleneck.
 
 
 Element Lock:
 Threads: 	Time	Speedup
-1		20.0	1.0X
-2		10.3	1.9X
-4		7.65	2.6X
+1			20.0	1.0X
+2			10.3	1.9X
+4			7.65	2.6X
 Similar list lock, the speed up isn't as significant from 2 to 4 threads, the speed of the memory is bottleneck.
 
 
 Reduction:
 Threads: 	Time	Speedup
-1		17.7	1.0X
-2		8.95	2.0X
-4		4.5	3.9X
+1			17.7	1.0X
+2			8.95	2.0X
+4			4.5		3.9X
 Reduction is very fast compare to locks. The memory bottleneck is less of an issue.
 
 
 Q11. samples to skip = 100
 Global lock: 
 Threads:	Time	Speedup
-1		37.0	1.0X
-2		22.3	1.7X
-4		18.4	2.0X
+1			37.0	1.0X
+2			22.3	1.7X
+4			18.4	2.0X
 
 List lock: 	
 Threads:	Time	Speedup
-1		37.2	1.0X
-2		19.4	1.9X
-4		11.1	3.3X
+1			37.2	1.0X
+2			19.4	1.9X
+4			11.1	3.3X
 
 Element Lock:
 Threads: 	Time	Speedup
-1		37.4	1.0X
-2		19.0	2.0X
-4		11.8	3.2X
+1			37.4	1.0X
+2			19.0	2.0X
+4			11.8	3.2X
 
 Reduction:
 Threads: 	Time	Speedup
-1		34.7	1.0X
-2		17.7	1.9X
-4		12.0	2.6X
-The tables clearly show that speedup is much more significant in almost all cases. This is due to increasing the execution time compare to memory access time. When samples_to_skip is high, there is more delay between each memory acess which decreases the chances of lock contention.
-In the case of Reduction, the speed up was not as signifitcant, because the delay between each memory acess is so long, reduction plays less of an role in optimizing.
+1			34.7	1.0X
+2			17.7	1.9X
+4			12.0	2.6X
+
+
+The tables clearly show that speedup is much more significant in almost all cases. This is due to increasing the execution time compare to memory access time. When samples_to_skip is high, there is more delay between each memory access which decreases the chances of lock contention.
+In the case of Reduction, the speed up was not as significant, because the delay between each memory access is so long, reduction plays less of an role in optimizing.
 
 
 Q12. Based on the results, we think that reduction offers the best performance, and OptsRus should consider reduction approach.
