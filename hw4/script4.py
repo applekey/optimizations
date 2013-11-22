@@ -23,7 +23,7 @@ randtrackGlobal = 'randtrack_global_lock 4 50 >global.out'
 randtrackTm = 'randtrack_tm 4 50 >randtrack_tm.out'
 randtrackll = 'randtrack_list_lock 4 50 >randtrack_list_lock.out'
 randtrackel = 'randtrack_element_lock 4 50 >randtrack_element_lock.out'
-randtrackre = 'randtrack_reduction 3 50 >randtrack_reduction.out'
+randtrackre = 'randtrack_reduction 4 50 >randtrack_reduction.out'
 
 ################################ compare ################################
 c1 = 'sort -n base.out > base.outs'
@@ -49,15 +49,15 @@ def runChecks():
 
 	print 'running'
 	command(randtrack)
-	print 'running'
-	command(randtrackGlobal)
-	print 'running'
-	command(randtrackTm)
-	print 'running'
-	command(randtrackll)
-	print 'running'
-	command(randtrackel)
-	print 'running'
+	# print 'running'
+	# command(randtrackGlobal)
+	# print 'running'
+	# command(randtrackTm)
+	# print 'running'
+	# command(randtrackll)
+	# print 'running'
+	# command(randtrackel)
+	# print 'running'
 	command(randtrackre)
 
 	print 'sorting'
