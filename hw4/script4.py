@@ -20,10 +20,10 @@ make = 'make'
 
 randtrack = 'randtrack 1 50 >base.out'
 randtrackGlobal = 'randtrack_global_lock 4 50 >global.out'
-randtrackTm = 'randtrack_tm 4 50 >tm.out'
-randtrackll = 'randtrack_list_lock 4 50 >ll.out'
-randtrackel = 'randtrack_element_lock 4 50 >el.out'
-randtrackre = 'randtrack_reduction 4 50 >re.out'
+randtrackTm = 'randtrack_tm 4 50 >randtrack_tm.out'
+randtrackll = 'randtrack_list_lock 4 50 >randtrack_tm.out'
+randtrackel = 'randtrack_element_lock 4 50 >randtrack_element_lock.out'
+randtrackre = 'randtrack_reduction 4 50 >randtrack_reduction.out'
 
 ################################ compare ################################
 c1 = 'sort -n base.out > base.outs'
@@ -41,7 +41,7 @@ a5 = 'diff randtrack_reduction.outs base.outs'
 
 
 def runChecks():
-	print 'running checks\n'
+	print 'running checks'
 
 	print 'compiling'
 	command(makeClean)
@@ -68,6 +68,7 @@ def runChecks():
 	command(c5)
 	command(c6)
 
+def runDiff():
 	print 'diffing'
 
 	output = command(a1)
@@ -90,3 +91,4 @@ def runChecks():
 		print 'error 6' 
 
 runChecks();
+runDiff();
