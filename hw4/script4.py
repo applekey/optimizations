@@ -63,11 +63,23 @@ def runChecks():
 
 	print 'diffing'
 
-	print command(a1)
-	print command(a2)
-	print command(a3)
-	print command(a4)
-	print command(a5)
-	print command(a6)
+	output = command(a1)
+	if not output:
+		print 'error 1' 
+	output = command(a2)
+	if not output:
+		print 'error 2' 
+	output = command(a3)
+	if not output:
+		print 'error 3' 
+	output = command(a4)
+	if not output:
+		print 'error 4' 
+	output = command(a5)
+	if not output:
+		print 'error 5' 
+	output = command(a6)
+	if not output:
+		print 'error 6' 
 
 runChecks();
