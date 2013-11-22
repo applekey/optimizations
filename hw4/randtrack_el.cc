@@ -16,16 +16,26 @@
  * Please fill in the following team struct 
  */
 team_t team = {
-    "Team Name",                  /* Team name */
+    "pokemon",                  /* Team name */
 
-    "AAA BBB",                    /* First member full name */
-    "9999999999",                 /* First member student number */
-    "AAABBB@CCC",                 /* First member email address */
+    "Chen Hao Zhang",                    /* First member full name */
+    "999272228",                 /* First member student number */
+    "chenhao.zhang@mail.utoronto.ca",                 /* First member email address */
 
-    "",                           /* Second member full name */
-    "",                           /* Second member student number */
-    ""                            /* Second member email address */
+    "Vincent Chen",                           /* Second member full name */
+    "996952114",                           /* Second member student number */
+    "vincenttt.chen@mail.utoronto.ca"                            /* Second member email address */
 };
+
+/**********************************************************************************
+We use what we build earlier from list_lock. There are two layer locks, the first
+layer is element_lock, the second layer is list_lock. We have one lock for every key.
+We defined the locks as an array of size RAND_NUM_UPPER_BOUND.
+
+Before we look up a key, we lock the element_lock, if the key does not exist, then
+we lock the list before inserting it. We lock the list to make sure that race does
+not happen.
+**********************************************************************************/
 
 unsigned num_threads;
 unsigned samples_to_skip;
@@ -81,15 +91,16 @@ void *parallel_streams (void *counter){
 
       // force the sample to be within the range of 0..RAND_NUM_UPPER_BOUND-1
       key = rnum % RAND_NUM_UPPER_BOUND;
-      pthread_mutex_lock (&element_lock[key]);
+      pthread_mutex_lock (&element_lock[key]); //lock element_lock
       // if this sample has not been counted before
       if (!(s = h.lookup(key))){
          
       // insert a new element for it into the hash table
+      // Key does not exist in hash, we need to insert new key, so we lock the list to avoid possible races
         s = new sample(key);
-        h.lock_list(key);
+        h.lock_list(key); // Lock list
         h.insert(s);
-        h.unlock_list(key);
+        h.unlock_list(key);// Unlock list
       }
       
       // increment the count for the sample

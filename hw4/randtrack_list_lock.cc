@@ -16,16 +16,22 @@
  * Please fill in the following team struct 
  */
 team_t team = {
-    "Team Name",                  /* Team name */
+    "pokemon",                  /* Team name */
 
-    "AAA BBB",                    /* First member full name */
-    "9999999999",                 /* First member student number */
-    "AAABBB@CCC",                 /* First member email address */
+    "Chen Hao Zhang",                    /* First member full name */
+    "999272228",                 /* First member student number */
+    "chenhao.zhang@mail.utoronto.ca",                 /* First member email address */
 
-    "",                           /* Second member full name */
-    "",                           /* Second member student number */
-    ""                            /* Second member email address */
+    "Vincent Chen",                           /* Second member full name */
+    "996952114",                           /* Second member student number */
+    "vincenttt.chen@mail.utoronto.ca"                            /* Second member email address */
 };
+
+/**********************************************************************************
+We modified hash.h to add a list_lock to each list. Before looking for a key, we
+lock the list coresponding to that key. We do this to avoid two threads both looking
+into the list at the same time and inserting itself twice.
+**********************************************************************************/
 
 unsigned num_threads;
 unsigned samples_to_skip;
@@ -71,7 +77,7 @@ void *parallel_streams (void *counter){
 
       // force the sample to be within the range of 0..RAND_NUM_UPPER_BOUND-1
       key = rnum % RAND_NUM_UPPER_BOUND;
-      h.lock_list(key);
+      h.lock_list(key); //lock the list
       // if this sample has not been counted before
       if (!(s = h.lookup(key))){
   
@@ -82,7 +88,7 @@ void *parallel_streams (void *counter){
 
       // increment the count for the sample
       s->count++;
-      h.unlock_list(key);
+      h.unlock_list(key); //unlock the list
     }
   } 
 }
