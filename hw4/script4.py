@@ -49,40 +49,40 @@ def runChecks():
 
 	print 'running'
 	command(randtrack)
-	# print 'running'
-	# command(randtrackGlobal)
-	# print 'running'
-	# command(randtrackTm)
-	# print 'running'
-	# command(randtrackll)
-	# print 'running'
-	# command(randtrackel)
-	# print 'running'
+	print 'running'
+	command(randtrackGlobal)
+	print 'running'
+	command(randtrackTm)
+	print 'running'
+	command(randtrackll)
+	print 'running'
+	command(randtrackel)
+	print 'running'
 	command(randtrackre)
 
 	print 'sorting'
-	# command(c1)
-	# command(c2)
-	# command(c3)
-	# command(c4)
+	command(c1)
+	command(c2)
+	command(c3)
+	command(c4)
 	command(c5)
-	#command(c6)
+	command(c6)
 
 def runDiff():
 	print 'diffing'
 
-	# output = command(a1)
-	# if  output:
-	# 	print 'error 1' 
-	# output = command(a2)
-	# if  output:
-	# 	print 'error 2' 
-	# output = command(a3)
-	# if  output:
-	# 	print 'error 3' 
-	# output = command(a4)
-	# if  output:
-	# 	print 'error 4' 
+	output = command(a1)
+	if  output:
+		print 'error 1' 
+	output = command(a2)
+	if  output:
+		print 'error 2' 
+	output = command(a3)
+	if  output:
+		print 'error 3' 
+	output = command(a4)
+	if  output:
+		print 'error 4' 
 	output = command(a5)
 	if  output:
 		print 'error 5' 

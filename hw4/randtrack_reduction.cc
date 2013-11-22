@@ -44,7 +44,12 @@ class sample {
     my_key = the_key; count = 0;
   };
   unsigned key(){return my_key;}
-  void print(FILE *f){printf("%d %d\n",my_key,count);}
+  void print(FILE *f){
+
+    if(count != 0)
+      printf("%d %d\n",my_key,count);
+
+  }
   
   // ~sample()
   // {
