@@ -5,7 +5,7 @@
 
 
 #include "defs.h"
-#include "hash_list_lock.h"
+#include "hash_reduction.h"
 
 #define SAMPLES_TO_COLLECT   10000000
 #define RAND_NUM_UPPER_BOUND   100000

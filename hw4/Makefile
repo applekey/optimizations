@@ -19,7 +19,7 @@ el: list.h hash.h defs.h randtrack_el.cc
 global: list.h hash.h defs.h randtrack_global_lock.cc
 	$(CC) $(CFLAGS) randtrack_global_lock.cc -o randtrack_global_lock -pthread
 
-redu: list.h hash.h defs.h randtrack_reduction.cc
+redu: hash_reduction.h list_reduction.h defs.h randtrack_reduction.cc
 	$(CC) $(CFLAGS) randtrack_reduction.cc -o randtrack_reduction -pthread
 
 
