@@ -46,11 +46,18 @@ def runChecks():
 	print 'compiling'
 	command(makeClean)
 	command(make)
+
+	print 'running'
 	command(randtrack)
+	print 'running'
 	command(randtrackGlobal)
+	print 'running'
 	command(randtrackTm)
+	print 'running'
 	command(randtrackll)
+	print 'running'
 	command(randtrackel)
+	print 'running'
 	command(randtrackre)
 
 	print 'sorting'
