@@ -48,6 +48,8 @@ list<Ele,Keytype>::merge(Ele *localHead){
   if(localHead ==NULL)
     return;
 
+  pthread_mutex_lock(&lock);
+
   Ele *localPointer = localHead;
   Ele *globalPointer = my_head;
   while(localPointer!= NULL)
@@ -59,11 +61,11 @@ list<Ele,Keytype>::merge(Ele *localHead){
       if(globalPointer->key() == keyToFind)
       {
         // lock it
-        pthread_mutex_lock(&(globalPointer->lock));
+        //pthread_mutex_lock(&(globalPointer->lock));
          //increase count
         globalPointer -> count += localPointer-> count;
         
-        pthread_mutex_unlock(&(globalPointer->lock));
+        //pthread_mutex_unlock(&(globalPointer->lock));
          found = 1;
          break;
       }
@@ -75,9 +77,8 @@ list<Ele,Keytype>::merge(Ele *localHead){
       
       //printf("head : %p\n",my_head);
       // lock the head and insert the entry, as it does not exist
-      pthread_mutex_lock(&lock);
+     
       // create a new element
-
       Ele * e = new Ele(keyToFind);
       e->count =localPointer-> count;
       //printf("%d\n",e->key());
@@ -87,11 +88,13 @@ list<Ele,Keytype>::merge(Ele *localHead){
 
       globalPointer = my_head;  // update the global pointer
       
-      pthread_mutex_unlock(&lock);
+      
     }
   
     localPointer = localPointer->next;
   }
+
+  pthread_mutex_unlock(&lock);
 }
 
 
