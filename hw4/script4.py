@@ -72,19 +72,19 @@ def runDiff():
 	print 'diffing'
 
 	output = command(a1)
-	if not output:
+	if  output:
 		print 'error 1' 
 	output = command(a2)
-	if not output:
+	if  output:
 		print 'error 2' 
 	output = command(a3)
-	if not output:
+	if  output:
 		print 'error 3' 
 	output = command(a4)
-	if not output:
+	if  output:
 		print 'error 4' 
 	output = command(a5)
-	if not output:
+	if  output:
 		print 'error 5' 
 
 runChecks();
