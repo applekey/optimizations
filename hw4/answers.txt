@@ -108,12 +108,15 @@ Reduction:
 Threads: 	Time	Speedup
 1			34.7	1.0X
 2			17.7	1.9X
-4			12.0	2.6X
+4			12.0	2.9X
 
 
 The tables clearly show that speedup is much more significant in almost all cases. This is due to increasing the execution time compare to memory access time. When samples_to_skip is high, there is more delay between each memory access which decreases the chances of lock contention.
 In the case of Reduction, the speed up was not as significant, because the delay between each memory access is so long, reduction plays less of an role in optimizing.
 
 
-Q12. Based on the results, we think that reduction offers the best performance, and OptsRus should consider reduction approach.
+Q12. Assuming that the customer is a data centre that does not need responsiveness in data, meaning
+they don't need to query the data live as its processing, reduction is great if the memory access 
+are not too large (samples to skip).  However in case where the memory access pattern is random, they
+should go with element level locks, which grantees a fast speed as well as live update of the global hash.
 
