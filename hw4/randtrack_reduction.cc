@@ -62,6 +62,8 @@ hash<sample,unsigned> global_hash;
 void *parallel_streams (void *counter){
   hash<sample,unsigned> local_hash;
 
+  local_hash.setup(14);
+
   int upperbound, lowerbound;
   int i, j, k, rnum;
   unsigned key;
@@ -117,6 +119,7 @@ main (int argc, char* argv[]){
   printf( "Student 2 Student Number: %s\n", team.number2 );
   printf( "Student 2 Email: %s\n", team.email2 );
   printf( "\n" );
+
 
   // Parse program arguments
   if (argc != 3){

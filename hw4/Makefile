@@ -24,4 +24,4 @@ redu: hash_reduction.h list_reduction.h defs.h randtrack_reduction.cc
 
 
 clean:
-	rm -f *.o randtrack randtrack_global_lock randtrack_tm randtrack_list_lock
+	rm -f *.o all
