@@ -29,6 +29,7 @@ team_t team = {
 
 unsigned num_threads;
 unsigned samples_to_skip;
+pthread_mutex_t element_lock[RAND_NUM_UPPER_BOUND]; 
 
 class sample;
 
@@ -80,21 +81,20 @@ void *parallel_streams (void *counter){
 
       // force the sample to be within the range of 0..RAND_NUM_UPPER_BOUND-1
       key = rnum % RAND_NUM_UPPER_BOUND;
-      h.lock_list(key);
+      pthread_mutex_lock (&element_lock[key]);
       // if this sample has not been counted before
       if (!(s = h.lookup(key))){
-  
+         
   // insert a new element for it into the hash table
         s = new sample(key);
+        h.lock_list(key);
         h.insert(s);
+        h.unlock_list(key);
       }
-      h.unlock_list(key);
-
-      // increment the count for the sample
-      pthread_mutex_lock(&(s->lock));
-      s->count++;
-      pthread_mutex_unlock(&(s->lock));
       
+      // increment the count for the sample
+      s->count++;
+      pthread_mutex_unlock (&element_lock[key]);
     }
   } 
 }
@@ -127,6 +127,10 @@ main (int argc, char* argv[]){
   }
   sscanf(argv[1], " %d", &num_threads); // not used in this single-threaded version
   sscanf(argv[2], " %d", &samples_to_skip);
+
+  for (i = 0; i < RAND_NUM_UPPER_BOUND; ++i) {
+    pthread_mutex_init(&element_lock[i], NULL);
+  }
 
   // initialize a 16K-entry (2**14) hash of empty lists
   h.setup(14);
