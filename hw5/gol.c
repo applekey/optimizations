@@ -49,6 +49,7 @@ copy_board (char outboard[], const char inboard[], const int nrows, const int nc
 {
   /* We use memmove in case outboard and inboard overlap (in this
      case, this would mean that they are the same */
+  printf("memmove\n");
   memmove (outboard, inboard, nrows * ncols * sizeof (char));
 }
 
@@ -57,11 +58,15 @@ boards_equalp (const char b1[], const char b2[], const int nrows, const int ncol
 {
   int i;
   for (i = 0; i < nrows * ncols; i++)
+  {
+     printf("%x,%x\n",b1[i],b2[i]);
     if (b1[i] != b2[i])
     {
       printf("at index %d\n",i);
-      return 0;
+      //return 0;
     }
+  }
+    
       
 
   return 1;

@@ -27,9 +27,7 @@
   b2 = temp; \
 } while(0)
 
-#define BOARD( __board, __i, __j )  (__board[(__i) + LDA*(__j)])
-
-
+#define BOARD( __board, __i, __j )  (__board[LDA*(__i) + (__j)])
 
 
     char*
@@ -41,21 +39,22 @@ Parrallel_game_of_life (char* outboard,
 {
     /* HINT: in the parallel decomposition, LDA may not be equal to
        nrows! */
-
-    char * boardMemory = (char *) malloc(sizeof(char)*nrows*ncols);  
-      const int LDA = nrows;
+    unsigned char * tmpMemory = (unsigned char *) malloc(sizeof(char)*nrows*ncols); 
+    unsigned char * boardMemory = (unsigned char *) malloc(sizeof(char)*nrows*ncols);  
+    memset(boardMemory, 0x0, sizeof(char)*nrows*ncols); 
+    const int LDA = ncols;
     // do first generation and store everthing into memory
        int curgen, i, j;
      for (i = 0; i < nrows; i++)
       {
           for (j = 0; j < ncols; j++)
           {
-             int inorth = mod (i-1, nrows);
+               int inorth = mod (i-1, nrows);
                int isouth = mod (i+1, nrows);
                int jwest = mod (j-1, ncols);
                int jeast = mod (j+1, ncols);
 
-            char neighbor_count = 
+            unsigned char neighbor_count = 
                   BOARD (inboard, inorth, jwest) + 
                   BOARD (inboard, inorth, j) + 
                   BOARD (inboard, inorth, jeast) + 
@@ -65,6 +64,8 @@ Parrallel_game_of_life (char* outboard,
                   BOARD (inboard, isouth, j) + 
                   BOARD (inboard, isouth, jeast);
 
+           unsigned char alive = BOARD (inboard, i, j) & 0x1;
+
 
            // char alive = alivep (neighbor_count, BOARD (inboard, i, j));
            // char result = alive+ (neighbor_count <<1);
@@ -73,47 +74,42 @@ Parrallel_game_of_life (char* outboard,
            // printf("result" BYTETOBINARYPATTERN,BYTETOBINARY(result));
            // printf("\n");
 
-           boardMemory[j*ncols+i] = (neighbor_count <<1);  // set all as dead
+           boardMemory[i*ncols+j] = (neighbor_count <<1) + alive;  // set all as dead
 
           }
         }
 
     for (curgen = 0; curgen < gens_max; curgen++)
     {
+        memcpy(tmpMemory,boardMemory,nrows*ncols);
         int countChange= 0;
         for (i = 0; i < nrows; i++)
         {
             int rowOffset = i*ncols;
             for (j = 0; j < ncols; j++)
             {
-              char cellNeghbourData = boardMemory[rowOffset+j];
+              unsigned char cellNeghbourData = tmpMemory[rowOffset+j];
               if(cellNeghbourData != 0)
               {
 
-
-              
-
-                char count = (cellNeghbourData & 0x1e)>>1;
-                char alive = cellNeghbourData & 0x1;
-                
+                unsigned int count = (cellNeghbourData )>>1;
+            
                 // if(curgen>0)
                 //   printf("count is %d, alive is %d\n",count,alive);
-                
-
-                if(alive == 1)
+                if(cellNeghbourData & 0x1)
                 {
                   if((count !=3) && (count !=2))
                   {
                     // kill the cell
-                     BOARD(inboard, i, j) = 0;
+                     BOARD(inboard, i, j) = 0x0;
                     // decrement the neightbours
                     
-                      int inorth = mod (i-1, nrows);
-                      int isouth = mod (i+1, nrows);
-                      int jwest = mod (j-1, ncols);
-                      int jeast = mod (j+1, ncols);
+                    int inorth = mod (i-1, nrows);
+                    int isouth = mod (i+1, nrows);
+                    int jwest = mod (j-1, ncols);
+                    int jeast = mod (j+1, ncols);
 
-                    boardMemory[rowOffset+j] = boardMemory[rowOffset+j] & 0x1e;
+                    boardMemory[rowOffset+j] &= ~0x01;
 
                     boardMemory[inorth*ncols+jwest] -=2;
                     boardMemory[inorth*ncols+j] -=2;
@@ -135,15 +131,15 @@ Parrallel_game_of_life (char* outboard,
                 {
                   if(count == 3)
                   {
-                      int inorth = mod (i-1, nrows);
-                      int isouth = mod (i+1, nrows);
-                      int jwest = mod (j-1, ncols);
-                      int jeast = mod (j+1, ncols);
+                    int inorth = mod (i-1, nrows);
+                    int isouth = mod (i+1, nrows);
+                    int jwest = mod (j-1, ncols);
+                    int jeast = mod (j+1, ncols);
                     // bring it back alive
                     // increment the neighbours
-                    boardMemory[rowOffset+j] = boardMemory[rowOffset+j] | 0x1;
+                    boardMemory[rowOffset+j] |= 0x1;
 
-                    BOARD(inboard, i, j) = 1;
+                    BOARD(inboard, i, j) = 0x1;
 
                     boardMemory[inorth*ncols+jwest] +=2;
                     boardMemory[inorth*ncols+j] +=2;
@@ -161,7 +157,7 @@ Parrallel_game_of_life (char* outboard,
               }
             }
         }
-       //printf("count is %d\n",countChange);
+       printf("count is %d\n",countChange);
         //SWAP_BOARDS( outboard, inboard );
 
     }
@@ -171,6 +167,8 @@ Parrallel_game_of_life (char* outboard,
      * Just be careful when you free() the two boards, so that you don't
      * free the same one twice!!! 
      */
+    free(boardMemory);
+    free(tmpMemory);
     return inboard;
 }
 
@@ -223,7 +221,7 @@ sequential_game_of_life (char* outboard,
 
             }
         }
-        //printf("count is %d\n",count);
+        printf("count is %d\n",count);
         SWAP_BOARDS( outboard, inboard );
 
     }
