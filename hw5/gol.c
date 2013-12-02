@@ -14,6 +14,8 @@
 #define DO_VERIFY 0
 #endif // VERIFY_FLAG
 
+//#include <time.h>
+
 
 static int
 to_int (int* num, const char* s)
@@ -143,7 +145,13 @@ main (int argc, char* argv[])
    * Evolve board gens_max ticks, and time the evolution.  You will
    * parallelize the game_of_life() function for this assignment.
    */
-  final_board = game_of_life (outboard, inboard, nrows, ncols, gens_max);
+   //// return sequential_game_of_life (outboard, inboard, nrows, ncols, gens_max);
+
+  // clock_t start = clock();
+  final_board = Parrallel_game_of_life (outboard, inboard, nrows, ncols, gens_max);
+  //final_board = sequential_game_of_life (outboard, inboard, nrows, ncols, gens_max);
+  //clock_t end = clock();
+  //printf("Elapsed time: %.2f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
 
   /* Print (or save, depending on command-line argument <outfilename>)
      the final board */
