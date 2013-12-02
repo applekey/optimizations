@@ -58,7 +58,11 @@ boards_equalp (const char b1[], const char b2[], const int nrows, const int ncol
   int i;
   for (i = 0; i < nrows * ncols; i++)
     if (b1[i] != b2[i])
+    {
+      printf("at index %d\n",i);
       return 0;
+    }
+      
 
   return 1;
 }
@@ -136,7 +140,6 @@ main (int argc, char* argv[])
      the initial state into it */
   if (verifyp)
     {
-      printf("verify activate\n");
       checkboard = make_board (nrows, ncols);
       copy_board (checkboard, inboard, nrows, ncols);
     }

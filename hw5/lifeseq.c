@@ -80,82 +80,85 @@ Parrallel_game_of_life (char* outboard,
 
     for (curgen = 0; curgen < gens_max; curgen++)
     {
-        //int countChange= 0;
+        int countChange= 0;
         for (i = 0; i < nrows; i++)
         {
             int rowOffset = i*ncols;
             for (j = 0; j < ncols; j++)
             {
               char cellNeghbourData = boardMemory[rowOffset+j];
-              if(cellNeghbourData == 0)
-                continue;
+              if(cellNeghbourData != 0)
+              {
 
-              char count = (cellNeghbourData & 0x1e)>>1;
-              char alive = cellNeghbourData & 0x1;
-              
-              // if(curgen>0)
-              //   printf("count is %d, alive is %d\n",count,alive);
+
               
 
-              if(alive == 1)
-              {
-                if((count !=3) && (count !=2))
+                char count = (cellNeghbourData & 0x1e)>>1;
+                char alive = cellNeghbourData & 0x1;
+                
+                // if(curgen>0)
+                //   printf("count is %d, alive is %d\n",count,alive);
+                
+
+                if(alive == 1)
                 {
-                  // kill the cell
-                   BOARD(inboard, i, j) = 0;
-                  // decrement the neightbours
-                  
-                    int inorth = mod (i-1, nrows);
-                    int isouth = mod (i+1, nrows);
-                    int jwest = mod (j-1, ncols);
-                    int jeast = mod (j+1, ncols);
+                  if((count !=3) && (count !=2))
+                  {
+                    // kill the cell
+                     BOARD(inboard, i, j) = 0;
+                    // decrement the neightbours
+                    
+                      int inorth = mod (i-1, nrows);
+                      int isouth = mod (i+1, nrows);
+                      int jwest = mod (j-1, ncols);
+                      int jeast = mod (j+1, ncols);
 
-                  boardMemory[rowOffset+j] = boardMemory[rowOffset+j] & 0x1e;
+                    boardMemory[rowOffset+j] = boardMemory[rowOffset+j] & 0x1e;
 
-                  boardMemory[inorth*ncols+jwest] -=2;
-                  boardMemory[inorth*ncols+j] -=2;
-                  boardMemory[inorth*ncols+jeast] -=2;
-                  
-                  boardMemory[i*ncols+ jwest] -=2;
-                  boardMemory[i*ncols+ jeast] -=2;
+                    boardMemory[inorth*ncols+jwest] -=2;
+                    boardMemory[inorth*ncols+j] -=2;
+                    boardMemory[inorth*ncols+jeast] -=2;
+                    
+                    boardMemory[i*ncols+ jwest] -=2;
+                    boardMemory[i*ncols+ jeast] -=2;
 
-                  boardMemory[isouth*ncols+jwest] -=2;
-                  boardMemory[isouth*ncols+isouth] -=2;
-                  boardMemory[isouth*ncols+jeast] -=2;
+                    boardMemory[isouth*ncols+jwest] -=2;
+                    boardMemory[isouth*ncols+isouth] -=2;
+                    boardMemory[isouth*ncols+jeast] -=2;
 
-                  //countChange++;
+                    countChange++;
+
+                  }
 
                 }
-
-              }
-              else
-              {
-                if(count == 3)
+                else
                 {
-                    int inorth = mod (i-1, nrows);
-                    int isouth = mod (i+1, nrows);
-                    int jwest = mod (j-1, ncols);
-                    int jeast = mod (j+1, ncols);
-                  // bring it back alive
-                  // increment the neighbours
-                  boardMemory[rowOffset+j] = boardMemory[rowOffset+j] | 0x1;
+                  if(count == 3)
+                  {
+                      int inorth = mod (i-1, nrows);
+                      int isouth = mod (i+1, nrows);
+                      int jwest = mod (j-1, ncols);
+                      int jeast = mod (j+1, ncols);
+                    // bring it back alive
+                    // increment the neighbours
+                    boardMemory[rowOffset+j] = boardMemory[rowOffset+j] | 0x1;
 
-                  BOARD(inboard, i, j) = 1;
+                    BOARD(inboard, i, j) = 1;
 
-                  boardMemory[inorth*ncols+jwest] +=2;
-                  boardMemory[inorth*ncols+j] +=2;
-                  boardMemory[inorth*ncols+jeast] +=2;
-                  
-                  boardMemory[i*ncols+ jwest] +=2;
-                  boardMemory[i*ncols+ jeast] +=2;
-                  
-                  boardMemory[isouth*ncols+jwest] +=2;
-                  boardMemory[isouth*ncols+isouth] +=2;
-                  boardMemory[isouth*ncols+jeast] +=2;
-                  //countChange++;
+                    boardMemory[inorth*ncols+jwest] +=2;
+                    boardMemory[inorth*ncols+j] +=2;
+                    boardMemory[inorth*ncols+jeast] +=2;
+                    
+                    boardMemory[i*ncols+ jwest] +=2;
+                    boardMemory[i*ncols+ jeast] +=2;
+                    
+                    boardMemory[isouth*ncols+jwest] +=2;
+                    boardMemory[isouth*ncols+isouth] +=2;
+                    boardMemory[isouth*ncols+jeast] +=2;
+                    countChange++;
+                  }
                 }
               }
-
             }
         }
        //printf("count is %d\n",countChange);
