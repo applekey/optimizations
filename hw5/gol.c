@@ -67,7 +67,7 @@ main (int argc, char* argv[])
   /*
    * Set verifyp to 1 if you want to turn on verification.
    */
-  const int verifyp = DO_VERIFY;
+  const int verifyp = 0;
   const int argc_min = 3;
   const int argc_max = 4;
 
@@ -134,6 +134,7 @@ main (int argc, char* argv[])
      the initial state into it */
   if (verifyp)
     {
+      printf("verify\n");
       checkboard = make_board (nrows, ncols);
       copy_board (checkboard, inboard, nrows, ncols);
     }
@@ -146,10 +147,13 @@ main (int argc, char* argv[])
 
   /* Print (or save, depending on command-line argument <outfilename>)
      the final board */
-  save_board (output, final_board, nrows, ncols);
-  if (output != stdout && output != stderr)
-    fclose (output);
+  printf("saving\n");
+  //save_board (output, final_board, nrows, ncols);
+  //if (output != stdout && output != stderr)
+    //fclose (output);
+  
 
+  printf("verifying\n");
   if (verifyp)
     {
       /* Make sure that outboard has the final state, so we can verify
@@ -163,12 +167,13 @@ main (int argc, char* argv[])
       final_board = sequential_game_of_life (inboard, checkboard, nrows, ncols, gens_max);
 
       if (boards_equalp (final_board, outboard, nrows, ncols))
-	printf ("Verification successful\n");
+	         printf ("Verification successful\n");
       else
-	{
-	  fprintf (stderr, "*** Verification failed! ***\n");
-	  exit (EXIT_FAILURE);
-	}
+    	{
+        printf("bad\n");
+    	  fprintf (stderr, "*** Verification failed! ***\n");
+    	  exit (EXIT_FAILURE);
+    	}
     }
 
   /* Clean up */
