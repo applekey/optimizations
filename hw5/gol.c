@@ -69,7 +69,7 @@ main (int argc, char* argv[])
   /*
    * Set verifyp to 1 if you want to turn on verification.
    */
-  const int verifyp = 0;
+  const int verifyp = 1;
   const int argc_min = 3;
   const int argc_max = 4;
 
@@ -136,7 +136,7 @@ main (int argc, char* argv[])
      the initial state into it */
   if (verifyp)
     {
-      printf("verify\n");
+      printf("verify activate\n");
       checkboard = make_board (nrows, ncols);
       copy_board (checkboard, inboard, nrows, ncols);
     }
@@ -156,9 +156,9 @@ main (int argc, char* argv[])
   /* Print (or save, depending on command-line argument <outfilename>)
      the final board */
   printf("saving\n");
-  //save_board (output, final_board, nrows, ncols);
-  //if (output != stdout && output != stderr)
-    //fclose (output);
+  // save_board (output, final_board, nrows, ncols);
+  // if (output != stdout && output != stderr)
+  //   fclose (output);
   
 
   printf("verifying\n");
@@ -168,10 +168,13 @@ main (int argc, char* argv[])
 	 it.  Since we ping-pong between inboard and outboard, it
 	 could be either that inboard == final_board or that outboard
 	 == final_board */
+       printf("inside\n");
       copy_board (outboard, final_board, nrows, ncols);
 
       /* Ping-pong between checkboard (contains the initial state) and
 	 inboard */
+
+      printf("calling sequential\n");
       final_board = sequential_game_of_life (inboard, checkboard, nrows, ncols, gens_max);
 
       if (boards_equalp (final_board, outboard, nrows, ncols))
@@ -184,6 +187,7 @@ main (int argc, char* argv[])
     	}
     }
 
+  printf("exit\n");
   /* Clean up */
   if (inboard != NULL)
     free (inboard);

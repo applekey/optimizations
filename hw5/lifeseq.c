@@ -66,22 +66,21 @@ Parrallel_game_of_life (char* outboard,
                   BOARD (inboard, isouth, jeast);
 
 
-           char alive = alivep (neighbor_count, BOARD (inboard, i, j));
-           char result = alive+ (neighbor_count <<1);
-           boardMemory[i*ncols+j] =   result;
-           printf("alive is %d and neightbour is %d\n",alive,neighbor_count);
-           printf("result" BYTETOBINARYPATTERN,BYTETOBINARY(result));
-           printf("\n");
+           // char alive = alivep (neighbor_count, BOARD (inboard, i, j));
+           // char result = alive+ (neighbor_count <<1);
+           // boardMemory[i*ncols+j] =   result;
+           // printf("alive is %d and neightbour is %d\n",alive,neighbor_count);
+           // printf("result" BYTETOBINARYPATTERN,BYTETOBINARY(result));
+           // printf("\n");
 
-           boardMemory[j*ncols+i] =  alivep (neighbor_count, BOARD (inboard, i, j)) + (neighbor_count <<1);
+           boardMemory[j*ncols+i] = (neighbor_count <<1);  // set all as dead
 
           }
         }
 
-    int countChange;
-    for (curgen = 1; curgen < gens_max; curgen++)
+    for (curgen = 0; curgen < gens_max; curgen++)
     {
-        countChange= 0;
+        //int countChange= 0;
         for (i = 0; i < nrows; i++)
         {
             int rowOffset = i*ncols;
@@ -94,8 +93,8 @@ Parrallel_game_of_life (char* outboard,
               char count = (cellNeghbourData & 0x1e)>>1;
               char alive = cellNeghbourData & 0x1;
               
-              if(curgen>0)
-                printf("count is %d, alive is %d\n",count,alive);
+              // if(curgen>0)
+              //   printf("count is %d, alive is %d\n",count,alive);
               
 
               if(alive == 1)
@@ -103,7 +102,7 @@ Parrallel_game_of_life (char* outboard,
                 if((count !=3) && (count !=2))
                 {
                   // kill the cell
-                  BOARD(outboard, i, j) = 0;
+                   BOARD(inboard, i, j) = 0;
                   // decrement the neightbours
                   
                     int inorth = mod (i-1, nrows);
@@ -124,7 +123,7 @@ Parrallel_game_of_life (char* outboard,
                   boardMemory[isouth*ncols+isouth] -=2;
                   boardMemory[isouth*ncols+jeast] -=2;
 
-                  countChange++;
+                  //countChange++;
 
                 }
 
@@ -141,7 +140,7 @@ Parrallel_game_of_life (char* outboard,
                   // increment the neighbours
                   boardMemory[rowOffset+j] = boardMemory[rowOffset+j] | 0x1;
 
-                  BOARD(outboard, i, j) = 1;
+                  BOARD(inboard, i, j) = 1;
 
                   boardMemory[inorth*ncols+jwest] +=2;
                   boardMemory[inorth*ncols+j] +=2;
@@ -153,13 +152,13 @@ Parrallel_game_of_life (char* outboard,
                   boardMemory[isouth*ncols+jwest] +=2;
                   boardMemory[isouth*ncols+isouth] +=2;
                   boardMemory[isouth*ncols+jeast] +=2;
-                  countChange++;
+                  //countChange++;
                 }
               }
 
             }
         }
-        printf("count is %d\n",countChange);
+       //printf("count is %d\n",countChange);
         //SWAP_BOARDS( outboard, inboard );
 
     }
@@ -182,6 +181,8 @@ sequential_game_of_life (char* outboard,
 {
     /* HINT: in the parallel decomposition, LDA may not be equal to
        nrows! */
+
+    printf("called\n");
     const int LDA = nrows;
     int curgen, i, j;
 
