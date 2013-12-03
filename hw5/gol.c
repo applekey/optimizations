@@ -14,8 +14,6 @@
 #define DO_VERIFY 0
 #endif // VERIFY_FLAG
 
-//#include <time.h>
-
 
 static int
 to_int (int* num, const char* s)
@@ -35,13 +33,13 @@ static void
 print_usage (const char argv0[])
 {
   fprintf (stderr, 
-	   "\nUsage: %s <num_generations> <infilename> <outfilename>\n\n"
-	   "\t<num_generations>: nonnegative number of generations\n"
-	   "\t<infilename>:      file from which to load initial board configuration\n"
-	   "\t<outfilename>:     file to which to save final board configuration;\n"
+           "\nUsage: %s <num_generations> <infilename> <outfilename>\n\n"
+           "\t<num_generations>: nonnegative number of generations\n"
+           "\t<infilename>:      file from which to load initial board configuration\n"
+           "\t<outfilename>:     file to which to save final board configuration;\n"
            "\t                   if not provided or just a single hyphen (-), then \n"
-	   "\t                   board is output to stdout\n"
-	   "\n\n", argv0);
+           "\t                   board is output to stdout\n"
+           "\n\n", argv0);
 }
 
 static void
@@ -49,7 +47,6 @@ copy_board (char outboard[], const char inboard[], const int nrows, const int nc
 {
   /* We use memmove in case outboard and inboard overlap (in this
      case, this would mean that they are the same */
-  printf("memmove\n");
   memmove (outboard, inboard, nrows * ncols * sizeof (char));
 }
 
@@ -58,16 +55,8 @@ boards_equalp (const char b1[], const char b2[], const int nrows, const int ncol
 {
   int i;
   for (i = 0; i < nrows * ncols; i++)
-  {
-    // printf("%x,%x\n",b1[i],b2[i]);
     if (b1[i] != b2[i])
-    {
-      //printf("at index %d\n",i);
       return 0;
-    }
-  }
-    
-      
 
   return 1;
 }
@@ -78,7 +67,7 @@ main (int argc, char* argv[])
   /*
    * Set verifyp to 1 if you want to turn on verification.
    */
-  const int verifyp = 1;
+  const int verifyp = 0;
   const int argc_min = 3;
   const int argc_max = 4;
 
@@ -97,8 +86,8 @@ main (int argc, char* argv[])
   if (argc < argc_min || argc > argc_max)
     {
       fprintf (stderr, "*** Wrong number of command-line arguments; "
-	       "got %d, need at least %d and no more than %d ***\n", 
-	       argc - 1, argc_min - 1, argc_max - 1);
+               "got %d, need at least %d and no more than %d ***\n", 
+               argc - 1, argc_min - 1, argc_max - 1);
       print_usage (argv[0]);
       exit (EXIT_FAILURE);
     }
@@ -107,7 +96,7 @@ main (int argc, char* argv[])
   if (err != 0)
     {
       fprintf (stderr, "*** <num_generations> argument \'%s\' "
-	       "must be a nonnegative integer! ***\n", argv[1]);
+               "must be a nonnegative integer! ***\n", argv[1]);
       print_usage (argv[0]);
       exit (EXIT_FAILURE);
     }
@@ -127,11 +116,11 @@ main (int argc, char* argv[])
     {
       output = fopen (argv[3], "w");
       if (output == NULL)
-	{
-	  fprintf (stderr, "*** Failed to open output file \'%s\' for writing! ***\n", argv[3]);
-	  print_usage (argv[0]);
-	  exit (EXIT_FAILURE);
-	}
+        {
+          fprintf (stderr, "*** Failed to open output file \'%s\' for writing! ***\n", argv[3]);
+          print_usage (argv[0]);
+          exit (EXIT_FAILURE);
+        }
     }
 
   /* Load the initial board state from the input file */
@@ -153,49 +142,37 @@ main (int argc, char* argv[])
    * Evolve board gens_max ticks, and time the evolution.  You will
    * parallelize the game_of_life() function for this assignment.
    */
-   //// return sequential_game_of_life (outboard, inboard, nrows, ncols, gens_max);
-
-  // clock_t start = clock();
   final_board = Parrallel_game_of_life (outboard, inboard, nrows, ncols, gens_max);
   //final_board = sequential_game_of_life (outboard, inboard, nrows, ncols, gens_max);
-  //clock_t end = clock();
-  //printf("Elapsed time: %.2f seconds\n", (double)(end - start) / CLOCKS_PER_SEC);
 
   /* Print (or save, depending on command-line argument <outfilename>)
      the final board */
-  printf("saving\n");
-  // save_board (output, final_board, nrows, ncols);
-  // if (output != stdout && output != stderr)
-  //   fclose (output);
-  
+  printf("done\n");
+  save_board (output, final_board, nrows, ncols);
+  if (output != stdout && output != stderr)
+    fclose (output);
 
-  printf("verifying\n");
   if (verifyp)
     {
       /* Make sure that outboard has the final state, so we can verify
-	 it.  Since we ping-pong between inboard and outboard, it
-	 could be either that inboard == final_board or that outboard
-	 == final_board */
-       printf("inside\n");
+         it.  Since we ping-pong between inboard and outboard, it
+         could be either that inboard == final_board or that outboard
+         == final_board */
       copy_board (outboard, final_board, nrows, ncols);
 
       /* Ping-pong between checkboard (contains the initial state) and
-	 inboard */
-
-      printf("calling sequential\n");
+         inboard */
       final_board = sequential_game_of_life (inboard, checkboard, nrows, ncols, gens_max);
 
       if (boards_equalp (final_board, outboard, nrows, ncols))
-	         printf ("Verification successful\n");
+        printf ("Verification successful\n");
       else
-    	{
-        printf("bad\n");
-    	  fprintf (stderr, "*** Verification failed! ***\n");
-    	  exit (EXIT_FAILURE);
-    	}
+        {
+          fprintf (stderr, "*** Verification failed! ***\n");
+          exit (EXIT_FAILURE);
+        }
     }
 
-  printf("exit\n");
   /* Clean up */
   if (inboard != NULL)
     free (inboard);
@@ -206,4 +183,3 @@ main (int argc, char* argv[])
 
   return 0;
 }
-
