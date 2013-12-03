@@ -70,6 +70,8 @@ Parrallel_game_of_life (char* outboard,
 
            unsigned char alive = BOARD (inboard, i, j) & 0x1;
 
+           printf("%d, %d,%x\n",i,j,alive);
+
 
            // char alive = alivep (neighbor_count, BOARD (inboard, i, j));
            // char result = alive+ (neighbor_count <<1);
@@ -94,13 +96,11 @@ Parrallel_game_of_life (char* outboard,
             for (j = 0; j < ncols; j++)
             {
               unsigned char cellNeghbourData = tmpMemory[rowOffset+j];
-              if(cellNeghbourData != 0)
+              if(cellNeghbourData != 0x0)
               {
 
                 unsigned int count = (cellNeghbourData )>>1;
             
-                //printf("count is %d, alive is %d\n",count,cellNeghbourData & 0x1);
-
                 if(cellNeghbourData & 0x1)
                 {
                   if((count !=3) && (count !=2))
@@ -109,6 +109,7 @@ Parrallel_game_of_life (char* outboard,
                      BOARD(inboard, i, j) = 0x0;
                     // decrement the neightbours
                     
+                    //printf("change-, %d, %d\n",i,j);
                     int inorth = mod (i-1, nrows);
                     int isouth = mod (i+1, nrows);
                     int jwest = mod (j-1, ncols);
@@ -125,6 +126,17 @@ Parrallel_game_of_life (char* outboard,
                     //printf("after "BYTETOBINARYPATTERN,BYTETOBINARY(boardMemory[inorth*ncols+jwest]));
                     //printf("\n");
                     // printf("\n");
+                    printf("index is %d,%d\n",i,j);
+
+                    printf("neightbour is %d,%d\n",inorth,jwest);
+                     printf("neightbour is %d,%d\n",inorth,j);
+                      printf("neightbour is %d,%d\n",inorth,jeast);
+                       printf("neightbour is %d,%d\n",i,jwest);
+                        printf("neightbour is %d,%d\n",i,jeast);
+                         printf("neightbour is %d,%d\n",isouth,jeast);
+                          printf("neightbour is %d,%d\n",isouth,isouth);
+                            printf("neightbour is %d,%d\n",isouth,jwest);
+
                     boardMemory[inorth*ncols+jwest] -=0x2;
                     boardMemory[inorth*ncols+j] -=0x2;
                     boardMemory[inorth*ncols+jeast] -=0x2;
@@ -133,7 +145,7 @@ Parrallel_game_of_life (char* outboard,
                     boardMemory[i*ncols+ jeast] -=0x2;
 
                     boardMemory[isouth*ncols+jwest] -=0x2;
-                    boardMemory[isouth*ncols+isouth] -=0x2;
+                    boardMemory[isouth*ncols+j] -=0x2;
                     boardMemory[isouth*ncols+jeast] -=0x2;
 
                 
@@ -156,42 +168,8 @@ Parrallel_game_of_life (char* outboard,
                     // bring it back alive
                     // increment the neighbours
 
-                       printf("start\n");
-                    unsigned char cellNeghbourData1 = boardMemory[inorth*ncols+jwest];
-                   count = (cellNeghbourData1 )>>1;
-                    printf("%d\n",count);
 
-                      unsigned char cellNeghbourData2 = boardMemory[inorth*ncols+j];
-                     count = (cellNeghbourData2 )>>1;
-                    printf("%d\n",count);
-
-                      unsigned char cellNeghbourData3 = boardMemory[inorth*ncols+jeast];
-                    count = (cellNeghbourData3 )>>1;
-                    printf("%d\n",count);
-
-                      unsigned char cellNeghbourData4 = boardMemory[i*ncols+ jwest];
-                    count = (cellNeghbourData4 )>>1;
-                    printf("%d\n",count);
-
-                      unsigned char cellNeghbourData5 = boardMemory[i*ncols+ jeast];
-                   count = (cellNeghbourData5 )>>1;
-                    printf("%d\n",count);
-
-                      unsigned char cellNeghbourData6 = boardMemory[isouth*ncols+jwest];
-                     count = (cellNeghbourData6 )>>1;
-                    printf("%d\n",count);
-
-                      unsigned char cellNeghbourData7 = boardMemory[isouth*ncols+isouth];
-                     count = (cellNeghbourData7 )>>1;
-                    printf("%d\n",count);
-
-                    unsigned char cellNeghbourData8 = boardMemory[isouth*ncols+jeast];
-                     count = (cellNeghbourData8 )>>1;
-                    printf("%d\n",count);
-
-                    printf("update\n");
-
-
+                    printf("change+, %d, %d\n",i,j);
                     boardMemory[rowOffset+j] |= 0x1;
 
                     BOARD(inboard, i, j) = 0x1;
@@ -204,42 +182,10 @@ Parrallel_game_of_life (char* outboard,
                     boardMemory[i*ncols+ jeast] +=0x2;
                     
                     boardMemory[isouth*ncols+jwest] +=0x2;
-                    boardMemory[isouth*ncols+isouth] +=0x2;
+                    boardMemory[isouth*ncols+j] +=0x2;
                     boardMemory[isouth*ncols+jeast] +=0x2;
 
-                            cellNeghbourData1 = boardMemory[inorth*ncols+jwest];
-                    count = (cellNeghbourData1 )>>1;
-                    printf("%d\n",count);
-
-                       cellNeghbourData2 = boardMemory[inorth*ncols+j];
-                     count = (cellNeghbourData2 )>>1;
-                    printf("%d\n",count);
-
-                       cellNeghbourData3 = boardMemory[inorth*ncols+jeast];
-                     count = (cellNeghbourData3 )>>1;
-                    printf("%d\n",count);
-
-                     cellNeghbourData4 = boardMemory[i*ncols+ jwest];
-                    count = (cellNeghbourData4 )>>1;
-                    printf("%d\n",count);
-
-                       cellNeghbourData5 = boardMemory[i*ncols+ jeast];
-                     count = (cellNeghbourData5 )>>1;
-                    printf("%d\n",count);
-
-                       cellNeghbourData6 = boardMemory[isouth*ncols+jwest];
-                    count = (cellNeghbourData6 )>>1;
-                    printf("%d\n",count);
-
-                       cellNeghbourData7 = boardMemory[isouth*ncols+isouth];
-                    count = (cellNeghbourData7 )>>1;
-                    printf("%d\n",count);
-
-                     cellNeghbourData8 = boardMemory[isouth*ncols+jeast];
-                    count = (cellNeghbourData8 )>>1;
-                    printf("%d\n",count);
-
-
+          
                     countChange++;
                   }
                 }
