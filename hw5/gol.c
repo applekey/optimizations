@@ -59,11 +59,11 @@ boards_equalp (const char b1[], const char b2[], const int nrows, const int ncol
   int i;
   for (i = 0; i < nrows * ncols; i++)
   {
-     printf("%x,%x\n",b1[i],b2[i]);
+    // printf("%x,%x\n",b1[i],b2[i]);
     if (b1[i] != b2[i])
     {
-      printf("at index %d\n",i);
-      //return 0;
+      //printf("at index %d\n",i);
+      return 0;
     }
   }
     
