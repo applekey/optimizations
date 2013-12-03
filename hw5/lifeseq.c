@@ -159,55 +159,8 @@ Parrallel_game_of_life (char* outboard,
 
             }
         }
-
-         // just some verification code
-     
-      // for (i = 0; i < nrows; i++)
-      // {
-      //     for (j = 0; j < ncols; j++)
-      //     {
-      //          int inorth = mod (i-1, nrows);
-      //          int isouth = mod (i+1, nrows);
-      //          int jwest = mod (j-1, ncols);
-      //          int jeast = mod (j+1, ncols);
-
-      //       unsigned char neighbor_count = 
-      //             (BOARD (inboard, inorth, jwest) & 0x1) + 
-      //             (BOARD (inboard, inorth, j) & 0x1)+ 
-      //             (BOARD (inboard, inorth, jeast) & 0x1)+ 
-      //             (BOARD (inboard, i, jwest) & 0x1)+
-      //             (BOARD (inboard, i, jeast) & 0x1)+ 
-      //             (BOARD (inboard, isouth, jwest) & 0x1)+
-      //             (BOARD (inboard, isouth, j) & 0x1)+ 
-      //             (BOARD (inboard, isouth, jeast)& 0x1);
-
-      //      unsigned char alive = BOARD (inboard, i, j) & 0x1;
-
-      //      checkBoard[i*ncols+j] = (neighbor_count <<1) + alive;  // set all as dead
-
-      //     }
-      //   }
-      //   // just some verification code end
-      
-      //   for(i=0;i<nrows*ncols;i++)
-      //   {
-          
-             
-      //     if(boardMemory[i]!= checkBoard[i])
-      //     {
-      //        printf("board"BYTETOBINARYPATTERN,BYTETOBINARY(boardMemory[i]));
-      //       printf("\n");
-
-      //        printf("check"BYTETOBINARYPATTERN,BYTETOBINARY(checkBoard[i]));
-      //       printf("\n");
-
-      //       printf("error\n");
-
-           
-      //     }
-      //   }
-
     }
+
     /* 
      * We return the output board, so that we know which one contains
      * the final result (because we've been swapping boards around).
@@ -234,7 +187,6 @@ sequential_game_of_life (char* outboard,
     {
         /* HINT: you'll be parallelizing these loop(s) by doing a
            geometric decomposition of the output */
-        int count = 0;
         for (i = 0; i < nrows; i++)
         {
             for (j = 0; j < ncols; j++)
@@ -254,17 +206,10 @@ sequential_game_of_life (char* outboard,
                     BOARD (inboard, isouth, j) + 
                     BOARD (inboard, isouth, jeast);
 
-                char a = BOARD(outboard, i, j);
-                char b = alivep (neighbor_count, BOARD (inboard, i, j));
-
-                if(a!= b)
-                  count ++;
-
-                BOARD(outboard, i, j) = b;
+                BOARD(outboard, i, j) = alivep (neighbor_count, BOARD (inboard, i, j));
 
             }
         }
-        //printf("count is %d\n",count);
         SWAP_BOARDS( outboard, inboard );
 
     }
@@ -276,7 +221,6 @@ sequential_game_of_life (char* outboard,
      */
     return inboard;
 }
-
 
 
 
