@@ -5,10 +5,12 @@
  ****************************************************************************/
 #include "life.h"
 #include "util.h"
- #include <stdlib.h>
- #include <string.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+ #include <pthread.h>
 
- #define BYTETOBINARYPATTERN "%d%d%d%d%d%d%d%d"
+#define BYTETOBINARYPATTERN "%d%d%d%d%d%d%d%d"
 #define BYTETOBINARY(byte)  \
   (byte & 0x80 ? 1 : 0), \
   (byte & 0x40 ? 1 : 0), \
@@ -31,29 +33,24 @@
 
 #define BOARD( __board, __i, __j )  (__board[LDA*(__i) + (__j)])
 
+#define NUM_THREADS 4
 
-    char*
-Parrallel_game_of_life (char* outboard, 
-        char* inboard,
-        const int nrows,
-        const int ncols,
-        const int gens_max)
-{
-    /* HINT: in the parallel decomposition, LDA may not be equal to
-       nrows! */
-    unsigned char * tmpMemory = (unsigned char *) malloc(sizeof(unsigned char)*nrows*ncols); 
-    unsigned char * boardMemory = (unsigned char *) malloc(sizeof(unsigned char)*nrows*ncols);  
-    //unsigned char * checkBoard = (unsigned char *) malloc(sizeof(unsigned char)*nrows*ncols);
-
-    memset(boardMemory, 0x0, sizeof(unsigned char)*nrows*ncols); 
-    //memset(checkBoard, 0x0, sizeof(unsigned char)*nrows*ncols); 
-
+void *initialize_map_parallel (void *partition_data) {
+    struct partition *board_data = (struct partition *)partition_data;
+    int i, j;
+    char *inboard = board_data->inboard;
+    int i_start, i_end, j_start, j_end;
+    i_start = board_data->i_start;
+    i_end = board_data->i_end;
+    j_start = board_data->j_start;
+    j_end = board_data->j_end;
+    int nrows = board_data->nrows;
+    int ncols = board_data->ncols;
+    unsigned char *boardMemory = board_data->boardMemory;
     const int LDA = ncols;
-    // do first generation and store everthing into memory
-       int curgen, i, j;
-     for (i = 0; i < nrows; i++)
+     for (i = i_start; i < i_end; i++)
       {
-          for (j = 0; j < ncols; j++)
+          for (j = j_start; j < j_end; j++)
           {
                int inorth = mod (i-1, nrows);
                int isouth = mod (i+1, nrows);
@@ -72,41 +69,58 @@ Parrallel_game_of_life (char* outboard,
 
            unsigned char alive = BOARD (inboard, i, j) & 0x1;
       
-           boardMemory[i*ncols+j] = (neighbor_count <<1) + alive;  // set all as dead
+           boardMemory[i*ncols+j] = (neighbor_count <<1) + alive;
 
           }
-        }
+      }
+      return NULL;
+}
+
+void *parallel_streams (void *partition_data) {
+    struct partition *board_data = (struct partition *)partition_data;
+    int curgen, i, j;
+    int gens_max = board_data->gens_max;
+    int thread_id = board_data->thread_id;
+    char *inboard = board_data->inboard;
+    unsigned char *boardMemory = board_data->boardMemory;
+    unsigned char *tmpMemory = board_data->tmpMemory;
+    int nrows = board_data->nrows;
+    int ncols = board_data->ncols;
+    int i_start, i_end, j_start, j_end;
+    i_start = board_data->i_start;
+    i_end = board_data->i_end;
+    j_start = board_data->j_start;
+    j_end = board_data->j_end;
+
+    int partition_size = (i_end - i_start) *(j_end - j_start);
+    const int LDA = ncols;
 
     for (curgen = 0; curgen < gens_max; curgen++)
     {
         int countChange= 0;
-        memmove(tmpMemory,boardMemory,nrows*ncols);
+        memmove(&tmpMemory[i_start*ncols+j_start], &boardMemory[i_start*ncols + j_start], partition_size);
 
-        for (i = 0; i < nrows; i++)
+        for (i = i_start; i < i_end; i++)
         {
             int rowOffset = i*ncols;
-            for (j = 0; j < ncols; j++)
+            for (j = j_start; j < j_end; j++)
             {
               unsigned char cellNeghbourData = tmpMemory[rowOffset+j];
               if(cellNeghbourData != 0x0)
               {
-
                 unsigned int count = (cellNeghbourData )>>1;
-            
+                int inorth = mod (i-1, nrows);
+                int isouth = mod (i+1, nrows);
+                int jwest = mod (j-1, ncols);
+                int jeast = mod (j+1, ncols);
+
                 if(cellNeghbourData & 0x1)
                 {
                   if((count !=3) && (count !=2))
                   {
-                    // kill the cell
-                     BOARD(inboard, i, j) = 0;
-                    // decrement the neightbours
                     
-                    //printf("change-, %d, %d\n",i,j);
-                    int inorth = mod (i-1, nrows);
-                    int isouth = mod (i+1, nrows);
-                    int jwest = mod (j-1, ncols);
-                    int jeast = mod (j+1, ncols);
-
+                    BOARD(inboard, i, j) = 0;
+                    pthread_mutex_lock (&global_lock);
                     boardMemory[rowOffset+j] &= ~0x01;
 
                     boardMemory[inorth*ncols+jwest] -=0x2;
@@ -119,10 +133,7 @@ Parrallel_game_of_life (char* outboard,
                     boardMemory[isouth*ncols+jwest] -=0x2;
                     boardMemory[isouth*ncols+j] -=0x2;
                     boardMemory[isouth*ncols+jeast] -=0x2;
-
-                
-                    //countChange++;
-
+                    pthread_mutex_unlock (&global_lock);
                   }
 
                 }
@@ -130,16 +141,10 @@ Parrallel_game_of_life (char* outboard,
                 {
                   if(count == 3)
                   {
-                    int inorth = mod (i-1, nrows);
-                    int isouth = mod (i+1, nrows);
-                    int jwest = mod (j-1, ncols);
-                    int jeast = mod (j+1, ncols);
-
-             
                     boardMemory[rowOffset+j] |= 0x1;
 
                     BOARD(inboard, i, j) = 1;
-
+                    pthread_mutex_lock (&global_lock);
                     boardMemory[inorth*ncols+jwest] +=0x2;
                     boardMemory[inorth*ncols+j] +=0x2;
                     boardMemory[inorth*ncols+jeast] +=0x2;
@@ -150,15 +155,103 @@ Parrallel_game_of_life (char* outboard,
                     boardMemory[isouth*ncols+jwest] +=0x2;
                     boardMemory[isouth*ncols+j] +=0x2;
                     boardMemory[isouth*ncols+jeast] +=0x2;
-
-          
                     countChange++;
+                    pthread_mutex_unlock (&global_lock);
                   }
                 }
               }
 
             }
         }
+        int err = pthread_barrier_wait(&barr);
+           if(err != 0 && err != PTHREAD_BARRIER_SERIAL_THREAD) {
+            printf("Could not wait on barr\n");
+            exit(-1);
+        }
+    }
+    return NULL;
+
+}
+    char*
+parallel_game_of_life (char* outboard, 
+        char* inboard,
+        const int nrows,
+        const int ncols,
+        const int gens_max)
+{
+    int i;
+    pthread_t threads[NUM_THREADS];
+    pthread_t threads2[NUM_THREADS];
+    struct partition *board_data = (struct partition *) malloc (NUM_THREADS*sizeof(struct partition));
+
+    unsigned char * tmpMemory = (unsigned char *) malloc(sizeof(unsigned char)*nrows*ncols); 
+    unsigned char * boardMemory = (unsigned char *) malloc(sizeof(unsigned char)*nrows*ncols);  
+    //unsigned char * checkBoard = (unsigned char *) malloc(sizeof(unsigned char)*nrows*ncols);
+
+    memset(boardMemory, 0x0, sizeof(unsigned char)*nrows*ncols); 
+    //memset(checkBoard, 0x0, sizeof(unsigned char)*nrows*ncols); 
+
+    for (i = 0; i < NUM_THREADS; i++) {
+      board_data[i].inboard = inboard;
+      board_data[i].nrows = nrows;
+      board_data[i].ncols = ncols;
+      board_data[i].gens_max = gens_max;
+      board_data[i].thread_id = i;
+      board_data[i].tmpMemory = tmpMemory;
+      board_data[i].boardMemory = boardMemory;
+    }
+
+    board_data[0].i_start = 0;
+    board_data[0].i_end = nrows/4;
+    board_data[0].j_start = 0;
+    board_data[0].j_end = ncols;
+
+    board_data[1].i_start = nrows/4;
+    board_data[1].i_end = nrows/2;
+    board_data[1].j_start = 0;
+    board_data[1].j_end = ncols;
+
+    board_data[2].i_start = nrows/2;
+    board_data[2].i_end = (nrows/4) * 3;
+    board_data[2].j_start = 0;
+    board_data[2].j_end = ncols;
+
+    board_data[3].i_start = (nrows/4) * 3;
+    board_data[3].i_end = nrows;
+    board_data[3].j_start = 0;
+    board_data[3].j_end = ncols;
+
+    pthread_mutex_init(&global_lock, NULL);
+    if(pthread_barrier_init(&barr, NULL, NUM_THREADS))
+    {
+        printf("barrier creation failed\n");
+        return NULL;
+    }
+    //  These threads for the initialization of the grid map
+    for (i = 0; i < NUM_THREADS; ++i)
+    {
+      if (pthread_create (&threads[i], NULL, initialize_map_parallel, (void *)(&board_data[i]))) {
+        printf ("can not create thread \n");
+        return NULL;
+      }
+
+    }
+
+    for (i = 0; i < NUM_THREADS; i++) {
+      pthread_join(threads[i], NULL);
+    }
+
+    //  These threads are for the grid
+    for (i = 0; i < NUM_THREADS; ++i)
+    {
+      if (pthread_create (&threads2[i], NULL, parallel_streams, (void *)(&board_data[i]))) {
+        printf ("can not create thread \n");
+        return NULL;
+      }
+    }
+
+    for (i = 0; i < NUM_THREADS; i++) {
+      pthread_join(threads2[i], NULL);
     }
 
     /* 
@@ -167,8 +260,13 @@ Parrallel_game_of_life (char* outboard,
      * Just be careful when you free() the two boards, so that you don't
      * free the same one twice!!! 
      */
+     free (tmpMemory);
+     free (boardMemory);
+     free (board_data);
     return inboard;
 }
+
+
 
 
     char*

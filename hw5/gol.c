@@ -143,7 +143,7 @@ main (int argc, char* argv[])
    * parallelize the game_of_life() function for this assignment.
    */
   //final_board = Parrallel_game_of_life (outboard, inboard, nrows, ncols, gens_max);
-  final_board = sequential_game_of_life (outboard, inboard, nrows, ncols, gens_max);
+  final_board = parallel_game_of_life (outboard, inboard, nrows, ncols, gens_max);
 
   /* Print (or save, depending on command-line argument <outfilename>)
      the final board */
