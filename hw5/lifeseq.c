@@ -99,8 +99,15 @@ void *parallel_streams (void *partition_data) {
     printf ("Psize: %d, istart: %d, iend: %d, jstart: %d, jend: %d\n", partition_size, i_start, i_end, j_start, j_end);
     for (curgen = 0; curgen < gens_max; curgen++)
     {
-        int countChange= 0;
+        int err = pthread_barrier_wait(&barr);
+         if(err != 0 && err != PTHREAD_BARRIER_SERIAL_THREAD) {
+          printf("Could not wait on barr\n");
+          exit(-1);}
         memmove(&tmpMemory[i_start*ncols+j_start], &boardMemory[i_start*ncols + j_start], partition_size);
+          err = pthread_barrier_wait(&barr);
+         if(err != 0 && err != PTHREAD_BARRIER_SERIAL_THREAD) {
+          printf("Could not wait on barr\n");
+          exit(-1);}
 
         for (i = i_start; i < i_end; i++)
         {
@@ -170,7 +177,7 @@ void *parallel_streams (void *partition_data) {
                     boardMemory[isouth*ncols+jwest] +=0x2;
                     boardMemory[isouth*ncols+j] +=0x2;
                     boardMemory[isouth*ncols+jeast] +=0x2;
-                    countChange++;
+                  
                     if (lock_status == 1) {
                       lock_status = 0;
                       pthread_mutex_unlock (&global_lock);
@@ -180,15 +187,9 @@ void *parallel_streams (void *partition_data) {
               }
 
             }
-        }
-        int err = pthread_barrier_wait(&barr);
-           if(err != 0 && err != PTHREAD_BARRIER_SERIAL_THREAD) {
-            printf("Could not wait on barr\n");
-            exit(-1);
-        }
+          }
     }
     return NULL;
-
 }
     char*
 parallel_game_of_life (char* outboard, 
@@ -281,7 +282,7 @@ parallel_game_of_life (char* outboard,
      free (tmpMemory);
      free (boardMemory);
      free (board_data);
-    return inboard;
+     return inboard;
 }
 
 
