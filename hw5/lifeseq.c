@@ -32,6 +32,8 @@
 } while(0)
 
 #define BOARD( __board, __i, __j )  (__board[LDA*(__i) + (__j)])
+//#define BOARD( __board, __i, __j )  (__board[(__i) + LDA*(__j)])
+
 
 #define NUM_THREADS 4
 
@@ -91,10 +93,10 @@ void *parallel_streams (void *partition_data) {
     i_end = board_data->i_end;
     j_start = board_data->j_start;
     j_end = board_data->j_end;
-
-    int partition_size = (i_end - i_start) *(j_end - j_start);
+    int lock_status = 0;
+    unsigned int partition_size = (i_end - i_start) *(j_end - j_start);
     const int LDA = ncols;
-
+    printf ("Psize: %d, istart: %d, iend: %d, jstart: %d, jend: %d\n", partition_size, i_start, i_end, j_start, j_end);
     for (curgen = 0; curgen < gens_max; curgen++)
     {
         int countChange= 0;
@@ -118,11 +120,15 @@ void *parallel_streams (void *partition_data) {
                 {
                   if((count !=3) && (count !=2))
                   {
-                    
-                    BOARD(inboard, i, j) = 0;
-                    pthread_mutex_lock (&global_lock);
                     boardMemory[rowOffset+j] &= ~0x01;
-
+                    BOARD(inboard, i, j) = 0;
+                    if ( (inorth == 0) || (inorth == nrows-1) || (inorth == nrows/4) || (inorth == (nrows/4 - 1)) || (inorth == nrows/2) || (inorth == (nrows/2 -1)) || 
+                    (inorth == (nrows/3) * 4 ) || (inorth == ((nrows/3) * 4 - 1)) || (isouth == 0 )|| (isouth == nrows-1) || (isouth == nrows/4) || (isouth == (nrows/4 - 1)) || 
+                    (isouth == nrows/2) || (isouth == (nrows/2 -1)) || (isouth == (nrows/3) * 4) || (isouth == ((nrows/3) * 4 - 1))) {
+                      lock_status = 1;
+                      pthread_mutex_lock (&global_lock);
+                    }
+              
                     boardMemory[inorth*ncols+jwest] -=0x2;
                     boardMemory[inorth*ncols+j] -=0x2;
                     boardMemory[inorth*ncols+jeast] -=0x2;
@@ -133,7 +139,11 @@ void *parallel_streams (void *partition_data) {
                     boardMemory[isouth*ncols+jwest] -=0x2;
                     boardMemory[isouth*ncols+j] -=0x2;
                     boardMemory[isouth*ncols+jeast] -=0x2;
-                    pthread_mutex_unlock (&global_lock);
+                    if (lock_status == 1) {
+                      lock_status = 0;
+                      pthread_mutex_unlock (&global_lock);
+                    }
+                    
                   }
 
                 }
@@ -144,7 +154,12 @@ void *parallel_streams (void *partition_data) {
                     boardMemory[rowOffset+j] |= 0x1;
 
                     BOARD(inboard, i, j) = 1;
-                    pthread_mutex_lock (&global_lock);
+                    if ( (inorth == 0) || (inorth == nrows-1) || (inorth == nrows/4) || (inorth == (nrows/4 - 1)) || (inorth == nrows/2) || (inorth == (nrows/2 -1)) || 
+                    (inorth == (nrows/3) * 4 ) || (inorth == ((nrows/3) * 4 - 1)) || (isouth == 0 )|| (isouth == nrows-1) || (isouth == nrows/4) || (isouth == (nrows/4 - 1)) || 
+                    (isouth == nrows/2) || (isouth == (nrows/2 -1)) || (isouth == (nrows/3) * 4) || (isouth == ((nrows/3) * 4 - 1))) {
+                      lock_status = 1;
+                      pthread_mutex_lock (&global_lock);
+                    }
                     boardMemory[inorth*ncols+jwest] +=0x2;
                     boardMemory[inorth*ncols+j] +=0x2;
                     boardMemory[inorth*ncols+jeast] +=0x2;
@@ -156,7 +171,10 @@ void *parallel_streams (void *partition_data) {
                     boardMemory[isouth*ncols+j] +=0x2;
                     boardMemory[isouth*ncols+jeast] +=0x2;
                     countChange++;
-                    pthread_mutex_unlock (&global_lock);
+                    if (lock_status == 1) {
+                      lock_status = 0;
+                      pthread_mutex_unlock (&global_lock);
+                    }
                   }
                 }
               }
