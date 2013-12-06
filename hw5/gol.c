@@ -127,6 +127,8 @@ main (int argc, char* argv[])
   /* Load the initial board state from the input file */
   inboard = load_board (input, &nrows, &ncols);
   fclose (input);
+
+  // if the returned inboard is null, it means that the max world size has being exceeded
   if(inboard == NULL)
   {
     fprintf(stderr,"Max world size has being exceeded\n");

@@ -2,6 +2,8 @@
  * life.c
  * The original sequential implementation resides here.
  * Do not modify this file, but you are encouraged to borrow from it
+
+ This file also contains the parallel implentation
  ****************************************************************************/
 #include "life.h"
 #include "util.h"
@@ -73,7 +75,7 @@ void *initialize_map_parallel (void *partition_data) {
 
            unsigned char alive = BOARD (inboard, i, j) & 0x1;
       
-           boardMemory[i*ncols+j] = (neighbor_count <<1) + alive;
+           boardMemory[i*ncols+j] = (neighbor_count <<1) + alive; // store the alive bit as well as the neightbourhood count
 
           }
       }
@@ -136,12 +138,14 @@ void *parallel_streams (void *partition_data) {
                   if((count !=3) && (count !=2))
                   {
                    
+                    // if the state needs to change,
+                    // minus 1 from the 8 surrounding cells
 
                     // This big branch checks for whether the cell is in a critical region, if in a critial region, acquire lock
                     if ( i == i_start || i == i_start+1|| i == (i_end-1) ||i == (i_end-2) ) 
                     {
                       pthread_mutex_lock (&global_lock);
-
+                      
                       boardMemory[rowOffset+j] &= ~0x01;
                       BOARD(inboard, i, j) = 0;
                       boardMemory[inorth*ncols+jwest] -=0x2;
@@ -181,7 +185,10 @@ void *parallel_streams (void *partition_data) {
                   if(count == 3)
                   {
                     
-                    
+                     // if the state needs to change,
+                    // plus 1 from the 8 surrounding cells
+
+
                     // This big branch checks for whether the cell is in a critical region, if in a critial region, acquire lock
                     if ( i == i_start || i == i_start+1|| i == (i_end-1) ||i == (i_end-2) ) 
                     {
