@@ -38,6 +38,8 @@
 #define NUM_THREADS 4
 
 void *initialize_map_parallel (void *partition_data) {
+    // See header file for more details
+    // We are reading each cells and its surrounding neighbours and storing it into a map
     struct partition *board_data = (struct partition *)partition_data;
     int i, j;
     char *inboard = board_data->inboard;
@@ -79,6 +81,7 @@ void *initialize_map_parallel (void *partition_data) {
 }
 
 void *parallel_streams (void *partition_data) {
+    //See header for more details
     struct partition *board_data = (struct partition *)partition_data;
     int curgen, i, j;
     int gens_max = board_data->gens_max;
@@ -96,7 +99,7 @@ void *parallel_streams (void *partition_data) {
     int lock_status = 0;
     unsigned int partition_size = (i_end - i_start) *(j_end - j_start);
     const int LDA = ncols;
-    printf ("Psize: %d, istart: %d, iend: %d, jstart: %d, jend: %d\n", partition_size, i_start, i_end, j_start, j_end);
+    
     for (curgen = 0; curgen < gens_max; curgen++)
     {
         int err = pthread_barrier_wait(&barr);
@@ -114,7 +117,11 @@ void *parallel_streams (void *partition_data) {
             int rowOffset = i*ncols;
             for (j = j_start; j < j_end; j++)
             {
+              
+              // temMemory stores the map of the current generation
               unsigned char cellNeghbourData = tmpMemory[rowOffset+j];
+
+              // if a cell is dead and has no alive neighbours, move on
               if(cellNeghbourData != 0x0)
               {
                 unsigned int count = (cellNeghbourData )>>1;
@@ -129,6 +136,8 @@ void *parallel_streams (void *partition_data) {
                   {
                     boardMemory[rowOffset+j] &= ~0x01;
                     BOARD(inboard, i, j) = 0;
+
+                    // This big branch checks for whether the cell is in a critical region, if in a critial region, acquire lock
                     if ( (inorth == 0) || (inorth == nrows-1) || (inorth == nrows/4) || (inorth == (nrows/4 - 1)) || (inorth == nrows/2) || (inorth == (nrows/2 -1)) || 
                     (inorth == (nrows/3) * 4 ) || (inorth == ((nrows/3) * 4 - 1)) || (isouth == 0 )|| (isouth == nrows-1) || (isouth == nrows/4) || (isouth == (nrows/4 - 1)) || 
                     (isouth == nrows/2) || (isouth == (nrows/2 -1)) || (isouth == (nrows/3) * 4) || (isouth == ((nrows/3) * 4 - 1))) {
@@ -161,6 +170,8 @@ void *parallel_streams (void *partition_data) {
                     boardMemory[rowOffset+j] |= 0x1;
 
                     BOARD(inboard, i, j) = 1;
+                    
+                    // This big branch checks for whether the cell is in a critical region, if in a critial region, acquire lock
                     if ( (inorth == 0) || (inorth == nrows-1) || (inorth == nrows/4) || (inorth == (nrows/4 - 1)) || (inorth == nrows/2) || (inorth == (nrows/2 -1)) || 
                     (inorth == (nrows/3) * 4 ) || (inorth == ((nrows/3) * 4 - 1)) || (isouth == 0 )|| (isouth == nrows-1) || (isouth == nrows/4) || (isouth == (nrows/4 - 1)) || 
                     (isouth == nrows/2) || (isouth == (nrows/2 -1)) || (isouth == (nrows/3) * 4) || (isouth == ((nrows/3) * 4 - 1))) {
@@ -191,6 +202,8 @@ void *parallel_streams (void *partition_data) {
     }
     return NULL;
 }
+
+
     char*
 parallel_game_of_life (char* outboard, 
         char* inboard,
@@ -210,6 +223,7 @@ parallel_game_of_life (char* outboard,
     memset(boardMemory, 0x0, sizeof(unsigned char)*nrows*ncols); 
     //memset(checkBoard, 0x0, sizeof(unsigned char)*nrows*ncols); 
 
+    //initialize data structure to be passed into parallel_stream
     for (i = 0; i < NUM_THREADS; i++) {
       board_data[i].inboard = inboard;
       board_data[i].nrows = nrows;
@@ -220,6 +234,7 @@ parallel_game_of_life (char* outboard,
       board_data[i].boardMemory = boardMemory;
     }
 
+    //The regions are separtated as equal partitions starting from top to botton
     board_data[0].i_start = 0;
     board_data[0].i_end = nrows/4;
     board_data[0].j_start = 0;
