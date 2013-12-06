@@ -29,16 +29,16 @@ weird = '/usr/bin/time -f "%e real" ./gol 10000 inputs/weird.pbm outputs/weird_p
 thirtyThree = '/usr/bin/time -f "%e real" ./gol 10000 inputs/33.pbm outputs/33_par.pbm';
 seven = '/usr/bin/time -f "%e real" ./gol 10000 inputs/777.pbm outputs/777_par.pbm';
 
-a1 = 'diff output/1k_par.pbm output/1k_verify_out.pbm'
-a2 = 'diff output/512_par.pbm output/512_base.pbm'
-a3 = 'diff output/128_par.pbm output/128_base.pbm'
+a1 = 'diff outputs/1k_par.pbm outputs/1k_verify_out.pbm'
+a2 = 'diff outputs/512_par.pbm outputs/512_base.pbm'
+a3 = 'diff outputs/128_par.pbm outputs/128_base.pbm'
 
-a4 = 'diff output/weird_par.pbm output/weird_base.pbm'
-a5 = 'diff output/33_par.pbm output/33_base.pbm'
-a6 = 'diff output/777_par.pbm output/777_base.pbm'
+a4 = 'diff outputs/weird_par.pbm outputs/weird_base.pbm'
+a5 = 'diff outputs/33_par.pbm outputs/33_base.pbm'
+a6 = 'diff outputs/777_par.pbm outputs/777_base.pbm'
 
 def runChecks():
-        printf 'running programs'
+        print 'running programs'
         command(makeClean)
         command(make)
         command(oneKInput)
