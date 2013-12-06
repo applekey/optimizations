@@ -32,7 +32,7 @@
 } while(0)
 
 #define BOARD( __board, __i, __j )  (__board[LDA*(__i) + (__j)])
-//#define BOARD( __board, __i, __j )  (__board[(__i) + LDA*(__j)])
+//define BOARD( __board, __i, __j )  (__board[(__i) + LDA*(__j)])
 
 
 #define NUM_THREADS 4
@@ -340,7 +340,7 @@ sequential_game_of_life (char* outboard,
 {
     /* HINT: in the parallel decomposition, LDA may not be equal to
        nrows! */
-    const int LDA = nrows;
+    const int LDA = ncols;
     int curgen, i, j;
 
     for (curgen = 0; curgen < gens_max; curgen++)

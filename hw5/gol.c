@@ -67,7 +67,7 @@ main (int argc, char* argv[])
   /*
    * Set verifyp to 1 if you want to turn on verification.
    */
-  const int verifyp = 1;
+  const int verifyp = 0;
   const int argc_min = 3;
   const int argc_max = 4;
 
@@ -142,8 +142,8 @@ main (int argc, char* argv[])
    * Evolve board gens_max ticks, and time the evolution.  You will
    * parallelize the game_of_life() function for this assignment.
    */
-  final_board = parallel_game_of_life (outboard, inboard, nrows, ncols, gens_max);
-  //final_board = sequential_game_of_life (outboard, inboard, nrows, ncols, gens_max);
+  //final_board = parallel_game_of_life (outboard, inboard, nrows, ncols, gens_max);
+  final_board = sequential_game_of_life (outboard, inboard, nrows, ncols, gens_max);
 
   /* Print (or save, depending on command-line argument <outfilename>)
      the final board */
