@@ -76,6 +76,12 @@ char*
 load_board (FILE* input, int* nrows, int* ncols)
 {
   load_dimensions (input, nrows, ncols);
+
+  if(*nrows > 10000 || *ncols > 10000 )
+  {
+    return NULL;
+  }
+
   return load_board_values (input, *nrows, *ncols);
 }
 

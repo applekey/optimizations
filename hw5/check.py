@@ -52,26 +52,20 @@ def runChecks():
 def runDiff():
         print 'diffing'
         output = command(a1)
-        if  output:
-                print 'error 1' 
+        print output
         output = command(a2)
-        if  output:
-                print 'error 2' 
+        print output
         output = command(a3)
-        if  output:
-                print 'error 3' 
+        print output
 
         output = command(a4)
-        if  output:
-                print 'error 4'
+        print output
 
         output = command(a5)
-        if  output:
-                print 'error 5'
+        print output
 
         output = command(a6)
-        if  output:
-                print 'error 6'
+        print output
      
 runChecks();
 runDiff();

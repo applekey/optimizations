@@ -123,9 +123,16 @@ main (int argc, char* argv[])
         }
     }
 
+
   /* Load the initial board state from the input file */
   inboard = load_board (input, &nrows, &ncols);
   fclose (input);
+  if(inboard == NULL)
+  {
+    fprintf(stderr,"Max world size has being exceeded\n");
+    exit(0);
+  }
+  
 
   /* Create a second board for ping-ponging */
   outboard = make_board (nrows, ncols);
